@@ -15,7 +15,7 @@ const HomeScreenCus = () => {
 
   const fetchMotorcycles = async () => {
     try {
-      const res = await axios.get("http://192.168.1.13:3000/car");
+      const res = await axios.get("http://192.168.1.15:3000/car");
       setMotorcycles(res.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách xe:", error);
@@ -28,7 +28,8 @@ const HomeScreenCus = () => {
       onPress={() => navigation.navigate('MotorDetail', { motorcycle: item })}
     >
       <Image
-        source={{ uri: `http://192.168.1.13:3000/uploads/${item.IMG_Motor}` }}
+        source={{ uri: `http://192.168.1.15:3000/uploads/${item.IMG_Motor}` }} //https://cdn.carvip.vn/images/car1.jpg
+
         style={styles.image}
       />
       <Text style={styles.name}>{item.model}</Text>
@@ -47,6 +48,8 @@ const HomeScreenCus = () => {
         <ScrollView horizontal={true} style={styles.contents} showsHorizontalScrollIndicator={false}>
           <Image source={require('../../assets/ab2021.jpg')} style={styles.ImageTitle} />
           <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
+          <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
+
         </ScrollView>
 
         <Text style={styles.title}>Xu hướng quanh bạn</Text>

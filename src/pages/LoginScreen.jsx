@@ -20,7 +20,7 @@ const LoginScreen = ({navigation}) => {
   {/**Xử lí API đăng nhập */}
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://192.168.1.13:3000/login", { username, password });
+      const response = await axios.post("http://192.168.1.15:3000/login", { username, password });
 
       if (response.data.success) {
         await AsyncStorage.setItem("username",username);
