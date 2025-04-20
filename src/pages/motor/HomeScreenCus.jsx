@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios"; // nhớ cài: npm install axios
+import { BASE_URL } from "@env";
 
 const HomeScreenCus = () => {
   const navigation = useNavigation();
@@ -12,10 +13,13 @@ const HomeScreenCus = () => {
   useEffect(() => {
     fetchMotorcycles();
   }, []);
+  
+
+
 
   const fetchMotorcycles = async () => {
     try {
-      const res = await axios.get("http://192.168.1.15:3000/car");
+      const res = await axios.get(`${BASE_URL}/vehicles`);
       setMotorcycles(res.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách xe:", error);
@@ -27,11 +31,7 @@ const HomeScreenCus = () => {
       style={styles.card}
       onPress={() => navigation.navigate('MotorDetail', { motorcycle: item })}
     >
-      <Image
-        source={{ uri: `http://192.168.1.15:3000/uploads/${item.IMG_Motor}` }} //https://cdn.carvip.vn/images/car1.jpg
-
-        style={styles.image}
-      />
+      <Image source={{ uri: `${BASE_URL}/${item.IMG_Motor}` }} style={styles.image} />
       <Text style={styles.name}>{item.model}</Text>
       <Text style={styles.price}>{item.daily_rental_price}K/Ngày</Text>
     </TouchableOpacity>
@@ -49,6 +49,8 @@ const HomeScreenCus = () => {
           <Image source={require('../../assets/ab2021.jpg')} style={styles.ImageTitle} />
           <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
           <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
+          <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
+
 
         </ScrollView>
 
