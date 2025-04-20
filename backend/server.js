@@ -1,73 +1,69 @@
 const express = require("express");
-const mysql = require("mysql2");
+const mysql = require('mysql2');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV || 'local'}`
+});
 
 const app = express();
 app.use(express.json());
 
+// Database connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "123456789",
-  database: process.env.DB_NAME || "carvip2",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
+const promiseDb = db.promise();
 
 db.connect((err) => {
   if (err) {
     console.error("❌ Database connection error:", err);
-    return;
+    process.exit(1);
   }
   console.log("✅ MySQL connected");
 });
 
+// Middleware
+const authenticateToken = require("./middleware/authMiddleware");
+const { authorizeRoles } = require("./middleware/roleMiddleware");
 
-// Đăng nhập
+// Login "Đăng nhập"
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password)
-    return res.status(400).json({ message: "Email và password là bắt buộc" });
-
-  const query = "SELECT * FROM user WHERE email = ? AND status = 'Active'";
+  if (!email || !password) return res.status(400).json({ message: "Email và password là bắt buộc" });
+  const query = "SELECT * FROM accounts WHERE email = ? AND is_active = '1'";
   db.query(query, [email], (err, results) => {
     if (err) return res.status(500).json({ message: "Lỗi hệ thống" });
-    if (results.length === 0)
-      return res.status(400).json({
+    if (results.length === 0) {
+      return res.status(401).json({
         message: "Tài khoản không tìm thấy hoặc không hoạt động",
       });
-
-    const user = results[0];
-    const bcrypt = require("bcrypt");
-
-    const plainPassword = password;
-    bcrypt.hash(plainPassword, 10, (err, hash) => {
-      if (err) {
-        console.error("Lỗi khi hash:", err);
-      } else {
-        console.log("Hash của 'adminpass':", hash);
+    }
+    const accounts = results[0];
+    bcrypt.compare(password, accounts.password_hash, (err, isMatch) => {
+      if (err || !isMatch) {
+        return res.status(401).json({ message: "Thông tin xác thực không hợp lệ!" });
       }
-    });
-
-    bcrypt.compare(password, user.password, (err, isMatch) => {
-      if (err)
-        return res.status(500).json({ message: "Lỗi hệ thống khi so sánh mật khẩu" });
-
-      if (!isMatch)
-        return res.status(400).json({ message: "Thông tin xác thực không hợp lệ!" });
-
       const token = jwt.sign(
-        { user_id: user.user_id, role: user.role },
+        { 
+          account_id: accounts.account_id,
+          role: accounts.role 
+        },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_EXPIRATION || "1h" }
       );
-
-      return res.json({
+      res.json({
         success: true,
         message: "Đăng nhập thành công",
         token,
-        role: user.role,
+        role: accounts.role,
       });
     });
   });
@@ -87,19 +83,41 @@ app.post("/login", (req, res) => {
 
 
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.get('/vehicles', async (req, res) => {
+  try {
+    const [rows] = await promiseDb.query('SELECT * FROM car');
+
+    const vehiclesWithFullImagePath = rows.map(car => {
+      return {
+        ...car,
+        image_url: `${req.protocol}://${req.get('host')}/${car.IMG_Motor}`
+      };
+    });
+
+    res.json(vehiclesWithFullImagePath);
+  } catch (err) {
+    console.error('❌ Lỗi khi lấy danh sách xe:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ khi lấy thông tin xe.' });
+  }
+});
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+const upload = multer({ storage : storage });
+// API them moi xe
 
 
 
 
-
-
-
-
-
-
-
+// Other routes...
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
 });
