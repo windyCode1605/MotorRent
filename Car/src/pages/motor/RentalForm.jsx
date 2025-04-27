@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import {BASE_URL} from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,6 +13,25 @@ const RentalForm = ({navigation, route}) => {
   const [customer, setCustomer] = useState({});
 
   const { motorcycle, selectedIds } = route.params;
+
+  useEffect(() => {
+    const fetchAccountId = async () => {
+      try {
+        const accountId = await AsyncStorage.getItem('account_id');
+        console.log("Lấy account_id từ AsyncStorage:", accountId);
+        if (accountId) {
+          setCustomer({ customer_id: accountId });
+        } else {
+          console.error("Không tìm thấy account_id trong AsyncStorage");
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy account_id từ AsyncStorage:", error);
+      }
+    };
+
+    fetchAccountId();
+  }, []);
+
   console.log(motorcycle);
   console.log("Selected Extra Services:", selectedIds);
   if (!motorcycle) {
