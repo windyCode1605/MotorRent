@@ -15,7 +15,7 @@ exports.getAllCustomers = async (req, res) => {
 
 exports.getCustomerByAccountId = (req, res) => {
     const { account_id } = req.params;
-    const sql = "SELECT * FROM customers WHERE account_id = ?";
+    const sql = "SELECT customer_id FROM customers WHERE account_id = ?";
 
     db.query(sql, [account_id], (err, result) => {
         if (err) {
