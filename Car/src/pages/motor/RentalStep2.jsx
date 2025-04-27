@@ -4,7 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from '@env';
 
 const RentalStep2 = ({ route, navigation }) => {
-    const { motorcycle, pickupLocation, pickupTime } = route.params;
+    const { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime } = route.params;
     const [services, setServices] = useState([]);
     const [selectedIds, setSelectedIds] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ const RentalStep2 = ({ route, navigation }) => {
     };
 
     const handleNext = () => {
-        navigation.navigate('RentalStep3', { motorcycle, pickupLocation, pickupTime, selectedIds, services });
+        navigation.navigate('RentalStep3', { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime, selectedIds, services });
     };
 
     const renderItem = ({ item }) => (
