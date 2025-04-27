@@ -21,7 +21,7 @@ const { authorizeRoles } = require('./middleware/roleMiddleware');
 
 
 app.use('/', login);
-app.use('/customers', customerRoutes);
+app.use('/customers', authenticateToken, customerRoutes);
 app.use('/rentaladdons', rentalAddonRoutes);
 app.use('/reservations', reservationRoutes);
 app.use('/', authenticateToken,  vehicleRoutes);
