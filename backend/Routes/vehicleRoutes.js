@@ -14,6 +14,6 @@ const upload = multer({ storage });
 
 router.use('/uploads', express.static('uploads'));
 router.get('/vehicles', authenticateToken, getAllVehicles);
-router.post('/vehicles', authenticateToken, authorizeRoles('admin'), upload.single('IMG_Motor'), createVehicle);
+router.post('/addNewMotor', authenticateToken, authorizeRoles('admin'), upload.single('IMG_Motor'), createVehicle);
 
 module.exports = router;
