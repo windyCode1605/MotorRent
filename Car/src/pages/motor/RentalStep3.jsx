@@ -1,8 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { BASE_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const RentalStep3 = ({ route, navigation }) => {
-  const { motorcycle, pickupLocation, pickupTime, selectedIds, services } = route.params;
+  const [accountId, setAccountId] = useState({});
+  const [customerId, setCustomerId] = useState({});
+  const { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime, selectedIds, services } = route.params;
+  const fetchAccountId = async () => {
+    try {
+      const accountId = await AsyncStorage.getItem('account_id');
+      if (accountId) {
+        setAccountId({ accountId: accountId });
+      } else {
+        console.error("Không tìm thấy account_id trong AsyncStorage");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy account_id từ AsyncStorage:", error);
+    }
+  };
+
+  const fetCustomerId = async () => {
+    const token = await AsyncStorage.getItem('token');
+    try {
+      const accountId = await AsyncStorage.getItem('account_id');
+      console.log("Account ID:", accountId);
+      console.log("TK 1: ", token);
+      const response = await axios.get(`${BASE_URL}/customers/account/${accountId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      console.log("Account ID:", accountId);
+      console.log("Customer Data:", response.data);
+      setCustomerId({ customerId: response.data });
+    } catch (error) {
+      console.error("Lỗi :", error.message);
+      console.error("Chi tiết lỗi:", error.response || error);
+    }
+  }
+  useEffect(() => {
+    fetCustomerId();
+    fetchAccountId();
+  }, []);
+
 
   if (!services) {
     console.error("Services is undefined");
@@ -29,6 +71,8 @@ const RentalStep3 = ({ route, navigation }) => {
       <Text style={styles.label}>Xe: {motorcycle.model}</Text>
       <Text style={styles.label}>Vị trí nhận xe: {pickupLocation}</Text>
       <Text style={styles.label}>Thời gian nhận xe: {pickupTime}</Text>
+      <Text style={styles.label}>Vị trí trả xe: {pickupLocation}</Text>
+      <Text style={styles.label}>Thời gian trả xe: {pickupTime}</Text>
       <Text style={styles.label}>Dịch vụ bổ sung: {selectedServices}</Text>
       <TouchableOpacity style={styles.button} onPress={handleConfirm}>
         <Text style={styles.buttonText}>Xác nhận</Text>
