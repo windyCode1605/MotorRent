@@ -15,24 +15,26 @@ const LoginScreen = ({ navigation }) => {
   // Hàm xử lý đăng nhập
   const handleLogin = async () => {
     try {
-      console.log("BASE_URL :", BASE_URL);
+      console.log("Đang gửi request tới:", `${BASE_URL}/login`);
       const response = await axios.post(`${BASE_URL}/login`, { email, password });
+      console.log("Phản hồi từ server:", response.data);
+
       const { token, role, account_id } = response.data;
 
-      
-      await AsyncStorage.setItem('token', token); 
+      // Token và account_id 
+      await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('account_id', account_id.toString());
-      
+      console.log("Lưu account_id thành công:", account_id);
 
-      if (response.data.role.toLowerCase() === "admin") {
-        navigation.replace('Main'); 
-      } else if (response.data.role.toLowerCase() === "customer") {
-        navigation.replace('MotorScreen'); 
+      if (role.toLowerCase() === "admin") {
+        navigation.replace('Main');
+       } else if (role.toLowerCase() === "customer") {
+        navigation.replace('MotorScreen');
       } else {
         Alert.alert("Lỗi", "Tài khoản không hợp lệ.");
       }
     } catch (error) {
-      console.log(error);
+      console.log("Lỗi Axios:", error);
       Alert.alert("Lỗi", "Không thể kết nối tới server hoặc sai thông tin đăng nhập.");
     }
   };
