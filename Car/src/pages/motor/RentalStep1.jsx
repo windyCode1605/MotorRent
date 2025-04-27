@@ -5,9 +5,12 @@ const RentalStep1 = ({ navigation, route }) => {
   const { motorcycle } = route.params;
   const [pickupLocation, setPickupLocation] = useState('');
   const [pickupTime, setPickupTime] = useState('');
+  const [returnLocation, setReturnLocation] = useState('');
+  const [returnTime, setReturnTime] = useState('');
+
 
   const handleNext = () => {
-    navigation.navigate('RentalStep2', { motorcycle, pickupLocation, pickupTime });
+    navigation.navigate('RentalStep2', { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime });
   };
 
   return (
@@ -25,7 +28,21 @@ const RentalStep1 = ({ navigation, route }) => {
         style={styles.input}
         value={pickupTime}
         onChangeText={setPickupTime}
-        placeholder="Nhập thời gian nhận xe"
+        placeholder="YYYY-MM-DD HH:mm:ss"
+      />
+      <Text style={styles.label}>Vị trí giao xe *</Text>
+      <TextInput
+        style={styles.input}
+        value={returnLocation}
+        onChangeText={setReturnLocation}
+        placeholder="Nhập vị trí giao xe"
+      />
+      <Text style={styles.label}>Thời gian giao xe *</Text>
+      <TextInput
+        style={styles.input}
+        value={returnTime}
+        onChangeText={setReturnTime}
+        placeholder="Nhập thời gian giao xe"
       />
       <TouchableOpacity style={styles.button} onPress={handleNext}>
         <Text style={styles.buttonText}>Tiếp theo</Text>
