@@ -1,4 +1,4 @@
-// middleware/roleMiddleware.js
+// Phân quyền truy cập cho người dùng dựa trên vai trò của họ
 exports.authorizeRoles = (role) => {
     return (req, res, next) => {
       if (!req.user || req.user.role !== role) {
