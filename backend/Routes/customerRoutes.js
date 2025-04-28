@@ -4,8 +4,8 @@ const { getAllCustomers, getCustomerByAccountId} = require('../controllers/custo
 const authenticateToken = require('../middleware/authMiddleware');
 
 
-router.get('/', authenticateToken, getAllCustomers);
-router.get('/account/:account_id', authenticateToken, getCustomerByAccountId);
+router.get('/', getAllCustomers);
+router.get('/:account_id', authenticateToken, getCustomerByAccountId);
 
 
 module.exports = router;
