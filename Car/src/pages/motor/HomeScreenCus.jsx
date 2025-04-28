@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios"; // nhớ cài: npm install axios
 import { BASE_URL } from "@env";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+console.log("BASE_URL:", BASE_URL); // Kiểm tra giá trị của BASE_URL
 
 const HomeScreenCus = () => {
   const navigation = useNavigation();
@@ -55,12 +56,7 @@ const HomeScreenCus = () => {
 
       <View style={{ flex: 1, marginHorizontal: 20 }}>
         <ScrollView horizontal={true} style={styles.contents} showsHorizontalScrollIndicator={false}>
-          <Image source={require('../../assets/Xp1.jpg')} style={styles.ImageTitle} />
-          <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
-          <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
-          <Image source={require('../../assets/Ab.png')} style={styles.ImageTitle} />
-
-
+          <Image source={require('../../assets/car2.jpg')} style={styles.ImageTitle} />
         </ScrollView>
 
         <Text style={styles.title}>Xu hướng quanh bạn</Text>
