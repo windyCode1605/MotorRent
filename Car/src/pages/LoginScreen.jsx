@@ -4,15 +4,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 import { BASE_URL } from "@env";
+console.log("BASE_URL:", BASE_URL); // Kiểm tra giá trị của BASE_URL
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
 
-
-  // Hàm xử lý đăng nhập
+ 
   const handleLogin = async () => {
     try {
       console.log("Đang gửi request tới:", `${BASE_URL}/login`);
