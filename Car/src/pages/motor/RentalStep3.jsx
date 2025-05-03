@@ -11,19 +11,13 @@ const RentalStep3 = ({ route, navigation }) => {
   useEffect(() => {
     const fetchCustomerInfo = async () => {
       try {
-        const token = await AsyncStorage.getItem('token');
-        console.log("token RETAL ASTEP 3: ", token);
         const accountId = await AsyncStorage.getItem('account_id');
         if (!accountId) {
           console.error("Không tìm thấy account_id trong AsyncStorage");
           return;
         }
-        const response = await axios.get(`${BASE_URL}/customers/${accountId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCustomer(response.data);
+        const response = await axios.get(`${BASE_URL}/customers/${accountId}`);
+        setCustomer(response.data.customer);
       } catch (error) {
         console.error("Lỗi khi fetch customer info:", error.response?.data || error.message);
       }
@@ -38,7 +32,7 @@ const RentalStep3 = ({ route, navigation }) => {
 
   const handleConfirm = async () => {
     if (!customer || !motorcycle) {
-      console.log(customer, motorcycle);
+      console.log(customer.customer_id, motorcycle);
       alert("Thông tin chưa đầy đủ. Vui lòng thử lại sau.");
       return;
     }

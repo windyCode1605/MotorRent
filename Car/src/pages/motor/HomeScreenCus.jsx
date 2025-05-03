@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, ScrollView, FlatList, TouchableOpacity, Image }
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import axios from "axios"; // nhớ cài: npm install axios
-import { BASE_URL } from "@env";
+import axios from "axios"; 
+import { BASE_URL } from "@env"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-console.log("BASE_URL:", BASE_URL); // Kiểm tra giá trị của BASE_URL
+console.log("BASE_URL Trong HomeScreenCus:", BASE_URL);
 
 const HomeScreenCus = () => {
   const navigation = useNavigation();

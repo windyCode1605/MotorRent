@@ -21,7 +21,7 @@ const { authorizeRoles } = require('./middleware/roleMiddleware');
 
 
 app.use('/', login);
-app.use('/customers', authenticateToken, customerRoutes);
+app.use('/customers', customerRoutes);
 app.use('/rentaladdons', rentalAddonRoutes);
 app.use('/reservations', reservationRoutes);
 app.use('/', authenticateToken,  vehicleRoutes);
@@ -29,6 +29,6 @@ app.use('/', authenticateToken, authorizeRoles('admin') ,vehicleRoutes);
 
 // chạy server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+app.listen(3000, '0.0.0.0', () => {
+  console.log(" Server đang chạy tại http://localhost:3000");
 });

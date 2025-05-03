@@ -26,7 +26,7 @@ import ExtraServiceSummaryScreen from "../pages/motor/ExtraServiceSummaryScreen"
 import TabNavigator from "./RouterTab";
 import Cofirmed from "../pages/ContractDate/Cofirmed";
 import ListCus from "../pages/Customer/ListCus";
-import AddNewCustomer from "../pages/Customer/AddNewCustomer";  
+import AddNewCustomer from "../pages/Customer/AddNewCustomer"; 
 
 
 const Stack = createStackNavigator();

@@ -1,35 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
-import { BASE_URL } from "@env";
-console.log("BASE_URL:", BASE_URL); // Kiểm tra giá trị của BASE_URL
+import { BASE_URL } from '@env';
+console.log("BASE_URL trong LoginScreen:", BASE_URL);
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
 
- 
   const handleLogin = async () => {
+    setIsLoading(true); // Bắt đầu loading
     try {
-      console.log("Đang gửi request tới:", `${BASE_URL}/login`);
       const response = await axios.post(`${BASE_URL}/login`, { email, password });
-      console.log("Phản hồi từ server:", response.data);
-
       const { token, role, account_id } = response.data;
 
-      // Token và account_id 
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('account_id', account_id.toString());
-      console.log("Lưu account_id thành công:", account_id);
 
       if (role.toLowerCase() === "admin") {
         navigation.replace('Main');
-       } else if (role.toLowerCase() === "customer") {
+      } else if (role.toLowerCase() === "customer") {
         navigation.replace('MotorScreen');
       } else {
         Alert.alert("Lỗi", "Tài khoản không hợp lệ.");
@@ -37,27 +31,22 @@ const LoginScreen = ({ navigation }) => {
     } catch (error) {
       console.log("Lỗi Axios:", error);
       Alert.alert("Lỗi", "Không thể kết nối tới server hoặc sai thông tin đăng nhập.");
+    } finally {
+      setIsLoading(false); // Kết thúc loading
     }
   };
 
-
-
-
-
-
   const handleTogglePassword = () => setShowPassword(!showPassword);
-
   const handleForgotPassword = () => {
     Alert.alert('Quên mật khẩu', 'Vui lòng liên hệ bộ phận hỗ trợ để lấy lại mật khẩu.');
   };
-
   const handleRegister = () => {
     navigation.navigate("RegisterScreen");
   };
-
   const handleLoginWithGoogle = () => {
     Alert.alert('Google Sign-In', 'Chức năng đăng nhập bằng Google đang được phát triển.');
   };
+
   return (
     <View style={styles.container}>
       {isLoading && (
@@ -132,10 +121,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   loadingOverlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -151,7 +137,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
-  },  
+  },
   container: {
     flex: 1,
     backgroundColor: '#F9F3EE',

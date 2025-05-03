@@ -15,7 +15,7 @@ db.connect((err) => {
     console.error("❌ Database connection error:", err);
     process.exit(1);
   }
-  console.log("✅ MySQL connected");
+  console.log("MySQL connected");
 });
 
 module.exports = db.promise(); // Xuất promise để dùng async/await
