@@ -1,38 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { BASE_URL } from '@env';
+console.log("BASE_URL trong RentalStep3:", BASE_URL);   
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const RentalStep3 = ({ route, navigation }) => {
-  const [customer, setCustomer] = useState(null);
   const { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime, selectedIds, services } = route.params;
-
-  useEffect(() => {
-    const fetchCustomerInfo = async () => {
-      try {
-        const accountId = await AsyncStorage.getItem('account_id');
-        if (!accountId) {
-          console.error("Không tìm thấy account_id trong AsyncStorage");
-          return;
-        }
-        const response = await axios.get(`${BASE_URL}/customers/${accountId}`);
-        setCustomer(response.data.customer);
-      } catch (error) {
-        console.error("Lỗi khi fetch customer info:", error.response?.data || error.message);
-      }
-    };
-    fetchCustomerInfo();
-  }, []);
-
+  console.log("Motorcycle trong RentalStep3:", motorcycle);
   const formatDateTime = (dateString) => {
     const d = new Date(dateString);
     return d.toLocaleString('vi-VN', { hour12: false });
   };
 
   const handleConfirm = async () => {
-    if (!customer || !motorcycle) {
-      console.log(customer.customer_id, motorcycle);
+    if (!motorcycle) {
       alert("Thông tin chưa đầy đủ. Vui lòng thử lại sau.");
       return;
     }
@@ -40,10 +22,9 @@ const RentalStep3 = ({ route, navigation }) => {
       const token = await AsyncStorage.getItem('token');
 
       const payload = {
-        customer_id: customer.customer_id,
-        car_id: motorcycle.motorcycle_id,
-        start_date: new Date(pickupTime).toISOString(),
-        end_date: new Date(returnTime).toISOString(),
+        car_id: motorcycle.car_id,
+        start_date: pickupTime instanceof Date ? pickupTime.toISOString().slice(0, 10) : String(pickupTime).slice(0, 10),
+        end_date: returnTime instanceof Date ? returnTime.toISOString().slice(0, 10) : String(returnTime).slice(0, 10),
         status: "pending",
         total_price: totalPrice,
         payment_status: "unpaid",
@@ -53,21 +34,21 @@ const RentalStep3 = ({ route, navigation }) => {
 
       console.log("Payload gửi lên:", payload);
 
-      const response = await axios.post(`${BASE_URL}/reservations`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await axios.post(`${BASE_URL}/reservation`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Tạo đơn thành công:", response.data);
-      navigation.navigate('SuccessScreen', { reservationId: response.data.reservation_id });
+      const reservationId = response.data.reservation_id;
+      console.log("Đơn đặt xe đã được tạo với ID:", reservationId);
+      navigation.navigate('Payment', { reservationId, totalPrice });
+
     } catch (error) {
       console.error("Lỗi khi gửi đơn đặt xe:", error.response?.data || error.message);
       alert("Có lỗi xảy ra khi xác nhận đơn, vui lòng thử lại.");
     }
   };
 
-  // 🛵 Xử lý dịch vụ và tính tổng tiền
+  //  Xử lý dịch vụ và tính tổng tiền
   const pickupDate = new Date(pickupTime);
   const returnDate = new Date(returnTime);
   const rentalDays = Math.max(1, Math.ceil((returnDate - pickupDate) / (1000 * 60 * 60 * 24))); // ít nhất 1 ngày
