@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import axios from 'axios';
 import { BASE_URL } from '@env';
-console.log("BASE_URL trong LoginScreen:", BASE_URL);
+console.log("BASE_URL LOGIN :", BASE_URL);
+
+
+
+
+
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -13,7 +18,7 @@ const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    setIsLoading(true); // Bắt đầu loading
+    setIsLoading(true); 
     try {
       const response = await axios.post(`${BASE_URL}/login`, { email, password });
       const { token, role, account_id } = response.data;

@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, FlatList, TextInput, TouchableOpacity } from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { BASE_URL } from "@env";
+import { BASE_URL } from '@env';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+console.log("BASE_URL list customer : ",BASE_URL);
 
 
 

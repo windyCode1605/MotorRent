@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList , ActivityIndicator} from 'react-native';
+import { BASE_URL } from '@env';
 import axios from 'axios';
-import { BASE_URL } from '@env'; 
-console.log("BASE_URL trong retal Step 2:", BASE_URL); // Kiểm tra giá trị của BASE_URL
+console.log("BASE_URL trong RentalStep2:", BASE_URL); // Kiểm tra giá trị của BASE_URL
 
 
 const RentalStep2 = ({ route, navigation }) => {
@@ -28,6 +28,9 @@ const RentalStep2 = ({ route, navigation }) => {
     const handleNext = () => {
       const selectedServices = services.filter(service => selectedIds.includes(service.addon_id));
       console.log("SELECTED SERVICES:", selectedServices);
+      console.log("Motorcycle in Step 2:", motorcycle);
+      console.log("Pickup Time in Step 2:", pickupTime);
+      console.log("Return Time in Step 2:", returnTime);
       navigation.navigate('RentalStep3', { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime, selectedIds, services , selectedServices});
     };
 

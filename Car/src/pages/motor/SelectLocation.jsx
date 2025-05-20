@@ -6,11 +6,6 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 const SelectLocation = () => {
     
 
-
-
-
-
-
     return (
         <SafeAreaView style={styles.container}>
 

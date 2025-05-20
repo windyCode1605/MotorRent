@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import {BASE_URL} from '@env'; 
+import { BASE_URL } from '@env';
 console.log("BASE_URL trong MotorcycleDetailScreen:", BASE_URL);
 
 const MotorcycleDetailScreen = ({ route }) => {

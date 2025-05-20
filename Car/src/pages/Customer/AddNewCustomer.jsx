@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const AddNewCustomer = ( {navigation} ) => {
   // Khởi tạo state cho các trường thông tin khách hàng
@@ -34,7 +37,7 @@ const AddNewCustomer = ( {navigation} ) => {
   const handleAddNew = async () => {
     setLoading(true); 
     try {
-      const response = await fetch('http://192.168.1.13:3000/customers', {
+      const response = await fetch(`${BASE_URL}/customers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

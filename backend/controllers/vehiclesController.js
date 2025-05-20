@@ -13,7 +13,7 @@ exports.getAllVehicles = async (req, res) => {
     }));
     res.json(vehiclesWithFullImagePath);
   } catch (err) {
-    console.error('❌ Lỗi khi lấy danh sách xe:', err);
+    console.error(' Lỗi khi lấy danh sách xe:', err);
     res.status(500).json({ message: 'Lỗi máy chủ khi lấy thông tin xe.' });
   }
 };
@@ -75,3 +75,6 @@ exports.createVehicle = (req, res) => {
   });
 };
 
+exports.getNameAllVehicles = ( req , res ) => {
+ 
+}

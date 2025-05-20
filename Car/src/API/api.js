@@ -1,10 +1,9 @@
 import axios from 'axios';
-
-const API_URL = 'http://192.168.1. :3000/api'; // Thay đổi nếu cần
+const { BASE_URL } = "@env";
 
 export const getMotorcycles = async () => {
   try {
-    const response = await axios.get(`${API_URL}/motorcycles`);
+    const response = await axios.get(`${BASE_URL}/motorcycles`);
     return response.data;
   } catch (error) {
     console.error('Error fetching motorcycles:', error);
@@ -14,7 +13,7 @@ export const getMotorcycles = async () => {
 
 export const bookMotorcycle = async (bookingData) => {
   try {
-    const response = await axios.post(`${API_URL}/bookings`, bookingData);
+    const response = await axios.post(`${BASE_URL}/bookings`, bookingData);
     return response.data;
   } catch (error) {
     console.error('Error booking motorcycle:', error);

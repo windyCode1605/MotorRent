@@ -18,4 +18,4 @@ db.connect((err) => {
   console.log("MySQL connected");
 });
 
-module.exports = db.promise(); // Xuất promise để dùng async/await
+module.exports = db.promise();

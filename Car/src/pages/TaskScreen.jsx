@@ -6,7 +6,12 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 
 
-const TaskScreen = () => {
+const TaskScreen = ({navigation}) => {
+
+  const handleAllContract = () => {
+    navigation.navigate("AllCT");
+  }
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
           <TouchableOpacity style={[styles.option,{margin: 10, borderRadius: 50,borderTopColor: "#ddd", borderTopWidth: 1,height: 70,}]}>
@@ -16,12 +21,12 @@ const TaskScreen = () => {
 
       <Text style={styles.header}>Vận hành</Text>
 
-      <TouchableOpacity style={[styles.option,{borderTopRightRadius: 10,borderTopLeftRadius: 10, borderTopWidth: 1, borderTopColor: "#ddd"}]}>
+      <TouchableOpacity style={[styles.option,{borderTopRightRadius: 10,borderTopLeftRadius: 10, borderTopWidth: 1, borderTopColor: "#ddd"}]} onPress={handleAllContract}>
         <Text><Icon name='file' size={24} color={'blue'}/> Hợp đồng ngày</Text>
         <Icon name="chevron-right" size={30} color={"#999"} />
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => {}}>
         <Text><Icon name='file-outline' size={24} color={'blue'}/> Hợp đồng tháng</Text>
         <Icon name="chevron-right" size={30} color={"#999"} />
       </TouchableOpacity>
@@ -51,7 +56,7 @@ const TaskScreen = () => {
         <Icon name="chevron-right" size={30} color={"#999"} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option}>
+      <TouchableOpacity style={styles.option} onPress={() => { navigation.navigate("maintenance")}}>
         <Text><Icon name='tools' size={24} color={'blue'}/> Bảo dưỡng sửa chữa</Text>
         <Icon name="chevron-right" size={30} color={"#999"} />
       </TouchableOpacity>
