@@ -1,127 +1,138 @@
-const axios = require('axios');
-const crypto = require('crypto');
+const { url } = require('inspector');
 const db = require('../config/promiseDb');
-require('dotenv').config();
+const { buffer } = require('stream/consumers');
+const axios = require('axios');
 
 exports.createMoMoPayment = async (req, res) => {
-  let connection;
+
+  var { reservation_id } = req.body;
+  if (!reservation_id) return res.status(400).json({ message: "Thiếu reservation_id " });
+
+  console.log("reservations_id ", reservation_id);
   try {
-    const { reservation_id, redirectUrl, ipnUrl } = req.body;
-
-    if (!reservation_id || !redirectUrl || !ipnUrl) {
-      return res.status(400).json({ error: 'Thiếu tham số yêu cầu' });
-    }
-
-    connection = await db.getConnection();
-
-    // Lấy total_price từ bảng reservations
-    const [reservationRows] = await connection.execute(
+    var [rows] = await db.execute(
       'SELECT total_price FROM reservations WHERE reservation_id = ?',
       [reservation_id]
     );
 
-    if (reservationRows.length === 0) {
-      return res.status(404).json({ error: 'Không tìm thấy đơn đặt xe' });
-    }
+    console.log("PRICE : ", Number(rows[0].total_price).toFixed(0));
+    if (rows.length === 0) return res.status(404).json({ message: "Không tìm thấy đơn đặt hàng ?" });
 
-    
-    const amount = parseInt(reservationRows[0].total_price);
+    var total_price = Number(rows[0].total_price).toFixed(0);
 
-  
-    const accessKey = process.env.MOMO_ACCESS_KEY || 'F8BBA842ECF85';
-    const secretKey = process.env.MOMO_SECRET_KEY || 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
-    const partnerCode = process.env.MOMO_PARTNER_CODE || 'MOMOSANDBOX';
-    const requestType = 'payWithMethod';
-    const orderInfo = `Thanh toán đơn đặt xe #${reservation_id}`;
-    const orderId = `${partnerCode}_${Date.now()}_${reservation_id}`;
-    const requestId = orderId;
-    const extraData = '';
-    const autoCapture = true;
-    const lang = 'vi';
+    var accessKey = 'F8BBA842ECF85';
+    var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
+    var orderInfo = 'pay with MoMo';
+    var partnerCode = 'MOMO';
+    var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
+    var ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
+    var requestType = "payWithMethod";
+    var amount = total_price;
+    var orderId = partnerCode + new Date().getTime();
+    var requestId = orderId;
+    var extraData = '';
+    var paymentCode = 'T8Qii53fAXyUftPV3m9ysyRhEanUs9KlOPfHgpMR0ON50U10Bh+vZdpJU7VY4z+Z2y77fJHkoDc69scwwzLuW5MzeUKTwPo3ZMaB29imm6YulqnWfTkgzqRaion+EuD7FN9wZ4aXE1+mRt0gHsU193y+yxtRgpmY7SDMU9hCKoQtYyHsfFR5FUAOAKMdw2fzQqpToei3rnaYvZuYaxolprm9+/+WIETnPUDlxCYOiw7vPeaaYQQH0BF0TxyU3zu36ODx980rJvPAgtJzH1gUrlxcSS1HQeQ9ZaVM1eOK/jl8KJm6ijOwErHGbgf/hVymUQG65rHU2MWz9U8QUjvDWA==';
+    var orderGroupId = '';
+    var autoCapture = true;
+    var lang = 'vi';
 
-    // Tạo rawSignature theo đúng thứ tự yêu cầu
-    const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
-    const signature = crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
-    console.log("MoMo config:", { partnerCode, accessKey, secretKey });
+    //before sign HMAC SHA256 with format
+    //accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType
+    var rawSignature = "accessKey=" + accessKey + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + orderId + "&orderInfo=" + orderInfo + "&partnerCode=" + partnerCode + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType;
+    //puts raw signature
+    console.log("--------------------RAW SIGNATURE----------------")
+    console.log(rawSignature)
+    //signature
+    const crypto = require('crypto');
+    var signature = crypto.createHmac('sha256', secretKey)
+      .update(rawSignature)
+      .digest('hex');
+    console.log("--------------------SIGNATURE----------------")
+    console.log(signature)
 
-    // Gửi request đến MoMo
-    const requestBody = {
-      partnerCode,
-      partnerName: "CarVip App",
-      storeId: "CarVipStore",
-      requestId,
-      amount,
-      orderId,
-      orderInfo,
-      redirectUrl,
-      ipnUrl,
-      lang,
-      requestType,
-      autoCapture,
-      extraData,
-      signature
-    };
-
-    const momoRes = await axios.post('https://test-payment.momo.vn/v2/gateway/api/create', requestBody, {
-      headers: { 'Content-Type': 'application/json' }
+    //json object send to MoMo endpoint
+    const requestBody = JSON.stringify({
+      partnerCode: partnerCode,
+      partnerName: "Test",
+      storeId: "MomoTestStore",
+      requestId: requestId,
+      amount: amount,
+      orderId: orderId,
+      orderInfo: orderInfo,
+      redirectUrl: redirectUrl,
+      ipnUrl: ipnUrl,
+      lang: lang,
+      requestType: requestType,
+      autoCapture: autoCapture,
+      extraData: extraData,
+      orderGroupId: orderGroupId,
+      signature: signature
     });
 
-    if (!momoRes.data || !momoRes.data.payUrl) {
-      console.error('MoMo Error:', momoRes.data);
-      return res.status(500).json({ error: 'Không thể tạo liên kết thanh toán từ MoMo' });
+    const options = {
+      method: "POST",
+      url: "https://test-payment.momo.vn/v2/gateway/api/create",
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(requestBody)
+      },
+      data: requestBody
     }
+    let result;
 
-    const payUrl = momoRes.data.payUrl;
-
-    // Lưu thông tin thanh toán vào bảng payments
-    await connection.execute(
+    result = await axios(options);
+   
+    await db.execute(
       'INSERT INTO payments (reservation_id, order_id, amount, status, payment_method, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())',
       [reservation_id, orderId, amount, 'pending', 'momo']
     );
-
-    return res.status(200).json({ payUrl });
-
-  } catch (error) {
-    console.error('=== Lỗi tạo thanh toán MoMo ===');
-    if (error.response) {
-      console.error('Status:', error.response.status);
-      console.error('Data:', error.response.data);
-      return res.status(500).json({
-        error: 'Lỗi từ MoMo',
-        momoMessage: error.response.data
-      });
-    } else {
-      console.error(error.message);
-      return res.status(500).json({ error: 'Không thể tạo thanh toán MoMo', message: error.message });
-    }
-  } finally {
-    if (connection) connection.release();
+    console.log('MOMO RESPONE : ', result.data);
+    return res.status(200).json(result.data);
   }
-};
+
+
+  catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      message: "server error"
+    })
+  }
+}
 
 
 
 
-exports.handleMoMoIPN = async (req, res) => {
-  const data = req.body;
-  const { orderId, resultCode, message } = data;
-
+///////////////////
+exports.handleMomoIPN = async (req, res) => {
   try {
-    if (!orderId) {
-      return res.status(400).json({ error: 'Thiếu orderId' });
+    const {
+      orderId,
+      resultCode,
+      message,
+      amount,
+      extraData,
+      requestId
+    } = req.body;
+
+    console.log("Nhận IPN từ MoMo:", req.body);
+
+    // Kiểm tra trạng thái thanh toán thành công
+    if (resultCode === 0) {
+      // Cập nhật đơn hàng trong DB
+      await db.execute(
+        "UPDATE payments SET status = ?, updated_at = NOW() WHERE order_id = ?",
+        ['success', orderId]
+      );
+    } else {
+      await db.execute(
+        "UPDATE payments SET status = ?, updated_at = NOW() WHERE order_id = ?",
+        ['failed', orderId]
+      );
     }
 
-    // Cập nhật trạng thái thanh toán dựa vào kết quả
-    const newStatus = resultCode === 0 ? 'success' : 'failed';
-
-    await db.execute(
-      'UPDATE payments SET status = ?, updated_at = NOW() WHERE order_id = ?',
-      [newStatus, orderId]
-    );
-
-    return res.status(200).json({ message: 'IPN đã xử lý', resultCode });
-  } catch (error) {
-    console.error('IPN ERROR:', error);
-    return res.status(500).json({ error: 'Lỗi xử lý IPN' });
+    return res.status(200).json({ message: "IPN received" });
+  } catch (err) {
+    console.error("Lỗi xử lý IPN:", err);
+    return res.status(500).json({ message: "Lỗi server" });
   }
-};
+}
