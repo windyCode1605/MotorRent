@@ -18,7 +18,7 @@ const PaymentScreen = ({ route, navigation }) => {
         reservation_id: reservationId,
         amount: totalPrice,
         redirectUrl: 'yourapp://payment-result',
-        ipnUrl: `${BASE_URL}/payments/momo-ipn`
+        ipnUrl: `${BASE_URL}/payment/momo-ipn`
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
