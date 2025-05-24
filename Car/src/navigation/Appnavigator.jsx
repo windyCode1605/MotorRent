@@ -19,6 +19,7 @@ import RentalStep1 from "../pages/motor/RentalStep1";
 import RentalStep2 from "../pages/motor/RentalStep2";
 import RentalStep3 from "../pages/motor/RentalStep3";
 import PaymentScreen from "../pages/motor/Payment";
+import PaymentSuccessScreen from "../pages/motor/PaymentSuccessScreen";
 
 import TabNavigator from "./RouterTab";
 import Cofirmed from "../pages/ContractDate/Cofirmed";
@@ -28,6 +29,8 @@ import AddNewCustomer from "../pages/Customer/AddNewCustomer";
 
 import MaintenanceItem from "../pages/maintenance/maintenance";
 import newMaintenance from "../pages/maintenance/newMaintenance";
+import serviceForm from "../pages/maintenance/ServiceForm";
+import EditServiceScreen from "../pages/maintenance/EditServiceScreen";
 
 const Stack = createStackNavigator();
 
@@ -48,8 +51,9 @@ const AppNavigator = () => {
       <Stack.Screen name='WarningScreen' component={WarningScreen} options={{headerShown: false}}/>
       {/** Của maintain */}
       <Stack.Screen name='maintenance' component={MaintenanceItem} options={{headerShown: false}}/>
-      <Stack.Screen name='newMaintenance' component={newMaintenance} options={{headerShown: false}} />
-
+      <Stack.Screen name='newMaintenance' component={newMaintenance} options={{headerShown: false}}/>
+      <Stack.Screen name='serviceForm' component={serviceForm} options={{headerShown: false}}/>
+      <Stack.Screen name='EditServiceScreen' component={EditServiceScreen} options={{headerShown: false}}/>
 
 
       {/**của KH */}
@@ -61,6 +65,7 @@ const AppNavigator = () => {
       <Stack.Screen name='RentalStep2' component={RentalStep2} options={{headerShown: false}}/>      
       <Stack.Screen name='RentalStep3' component={RentalStep3} options={{headerShown: false}}/>
       <Stack.Screen name='Payment' component={PaymentScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='PaymentSuccess' component={PaymentSuccessScreen} options={{headerShown: false}}/>
       <Stack.Screen name='Cofirmed' component={Cofirmed} options={{headerShown: false}}/>
 
     </Stack.Navigator>
