@@ -1,3 +1,4 @@
+{/**Buoc 3 */}
 import React, { useState } from 'react';
 import {
   View,
@@ -10,7 +11,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const ServiceForm = () => {
+
+const ServiceForm = ({navigation}) => {
   const [services, setServices] = useState([
     {
       id: '1',
@@ -20,7 +22,7 @@ const ServiceForm = () => {
       total: '33',
       note: '33',
     },
-  ]);
+    ]);
 
   const addService = () => {
     const newService = {
@@ -79,7 +81,7 @@ const ServiceForm = () => {
       </View>
 
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditServiceScreen')}>
           <Ionicons name="create-outline" size={18} color="#007AFF" />
           <Text style={styles.actionText}>Sửa</Text>
         </TouchableOpacity>
