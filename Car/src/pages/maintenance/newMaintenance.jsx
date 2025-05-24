@@ -1,3 +1,4 @@
+{/**Buoc 2 */}
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -101,7 +102,7 @@ const newMaintenance = ({ navigation }) => {
       return;
     }
     setErrorMessage('');
-    navigation.navigate('nextStep', {
+    navigation.navigate('serviceForm', {
       selectedMotorId,
       selectedStaffId,
       startDate,
