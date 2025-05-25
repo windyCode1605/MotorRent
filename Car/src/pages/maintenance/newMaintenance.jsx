@@ -1,4 +1,4 @@
-{/**Buoc 2 */}
+{/**Buoc 2 */ }
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -20,11 +20,25 @@ const newMaintenance = ({ navigation }) => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage0, setErrorMessage0] = useState('');
   const [staffList, setStaffList] = useState([]);
   const [selectedStaffId, setSelectedStaffId] = useState('');
   const [motorList, setMotorList] = useState([]);
   const [selectedMotorId, setSelectedMotorId] = useState('');
   const [note, setNote] = useState('');
+  const [mechanic, setMechanic] = useState('');
+
+
+  // Tạo mã bảo trì ngẫu nhiên
+  const generateMaintenanceId = (length = 3) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+  const [maintenanceid, setMaintenanceId] = useState(generateMaintenanceId());
 
 
   useEffect(() => {
@@ -95,21 +109,54 @@ const newMaintenance = ({ navigation }) => {
     return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateDates(startDate, endDate)) return;
     if (!selectedMotorId) {
       setErrorMessage('Vui lòng chọn xe.');
       return;
     }
+
     setErrorMessage('');
-    navigation.navigate('serviceForm', {
-      selectedMotorId,
-      selectedStaffId,
-      startDate,
-      endDate,
-      note,
-    });
+    try {
+      const formatstartDate = startDate.toISOString().split('T')[0];
+      const formatendDate = endDate.toISOString().split('T')[0];  
+    
+
+      console.log({
+        maintenance_id: maintenanceid,
+        car_id: selectedMotorId,
+        maintenance_date: formatstartDate,
+        next_maintenance_date: formatendDate,
+        description: note,
+        cost: 0,
+        status: 'Chưa duyệt',
+        receptionist_id: selectedStaffId
+      });
+
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.post(`${BASE_URL}/maintenance/create`, {
+        maintenance_id: maintenanceid,
+        car_id: selectedMotorId,
+        maintenance_date: formatstartDate,
+        next_maintenance_date: formatendDate,
+        description: note,
+        cost: 0,
+        status: 'Chưa duyệt',
+        receptionist_id: selectedStaffId
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Sau khi tạo thành công mới chuyển màn hình
+      navigation.navigate('serviceForm', { maintenance_id : maintenanceid });
+    } catch (error) {
+      console.error("Lỗi khi tạo phiếu bảo trì: ", error.message);
+      setErrorMessage0('Đã xảy ra lỗi khi tạo phiếu bảo trì.');
+    }
   };
+
 
   return (
     <View style={styles.container}>
