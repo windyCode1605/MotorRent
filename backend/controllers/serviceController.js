@@ -29,16 +29,16 @@ exports.deleteService = async (req, res) => {
 // thêm mới 
 exports.createService = async (req, res) => {
   try {
-    const { service_name, unit, quantity, unit_price, notes } = req.body;
+    const {maintenance_id, service_name, unit, quantity, unit_price, notes } = req.body;
 
-    if (!service_name || !unit || !quantity || !unit_price) {
+    if (!maintenance_id || !service_name || !unit || !quantity || !unit_price) {
       return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin.' });
     }
 
     const [result] = await db.execute(
-      `INSERT INTO service (service_name, unit, quantity, unit_price, notes)
-       VALUES (?, ?, ?, ?, ?)`,
-      [service_name, unit, quantity, unit_price, notes || null]
+      `INSERT INTO service (maintenance_id, service_name, unit, quantity, unit_price, notes)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [maintenance_id, service_name, unit, quantity, unit_price, notes || null]
     );
 
     res.status(201).json({
@@ -48,5 +48,44 @@ exports.createService = async (req, res) => {
   } catch (err) {
     console.error('Lỗi khi thêm service:', err.message);
     res.status(500).json({ error: 'Đã xảy ra lỗi khi thêm dịch vụ.' });
+  }
+};
+// cap nhật
+exports.updateService = async (req, res) => {
+  try {
+    const { service_id, service_name, unit, quantity, unit_price, notes } = req.body;
+    if (!service_id || !service_name  || !quantity || !unit_price) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp đầy đủ thông tin.' });
+    }
+    const [result] = await db.execute(
+      `UPDATE service 
+       SET service_name = ?, unit = ?, quantity = ?, unit_price = ?, notes = ?
+       WHERE service_id = ?`,
+      [service_name, unit, quantity, unit_price, notes || null, service_id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy dịch vụ để cập nhật.' });
+    }
+    res.json({ message: 'Cập nhật dịch vụ thành công.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Đã xảy ra lỗi khi cập nhật dịch vụ.' });
+  }
+};
+// GET /services/by-maintenance/:maintenance_id
+exports.getServicesByMaintenanceId = async (req, res) => {
+  const { maintenance_id } = req.params;
+
+  try {
+    const [rows] = await db.execute(
+      `SELECT * 
+       FROM service
+       WHERE maintenance_id = ?`,
+      [maintenance_id]
+    );
+
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Lỗi lấy dịch vụ theo maintenance_id:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ.' });
   }
 };
