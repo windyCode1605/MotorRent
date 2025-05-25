@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { getAllVehicles, createVehicle } = require('../controllers/vehiclesController');
+const { getAllVehicles, createVehicle, getVehicleById } = require('../controllers/vehiclesController');
 const authenticateToken  = require('../middleware/authMiddleware');
 const { authorizeRoles } = require('../middleware/roleMiddleware');
 
@@ -15,5 +15,5 @@ const upload = multer({ storage });
 router.use('/uploads', express.static('uploads'));
 router.get('/vehicles', authenticateToken, getAllVehicles);
 router.post('/addNewMotor', authenticateToken, authorizeRoles('admin'), upload.single('IMG_Motor'), createVehicle);
-
+router.get('/vehicles/:carId', authenticateToken, authorizeRoles('admin'), getVehicleById);
 module.exports = router;
