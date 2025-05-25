@@ -1,4 +1,4 @@
-{/** Buoc 1*/}
+{/** Buoc 1*/ }
 import React, { useState, useEffect } from "react";
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -18,26 +18,47 @@ const MaintenanceScreen = ({ navigation }) => {
   const [selectedTab, setSelectedTab] = useState("Danh sách phiếu");
   const [expandedId, setExpandedId] = useState(null);
   const [maintenances, setMaintenances] = useState([]);
+  const [motor, setMotor] = useState(null);
 
   useEffect(() => {
-    const fetchMaintenances = async () => {
-      const Token = await AsyncStorage.getItem('token');
-      console.log("Token maintenance: ", Token);
-      try {
-        const res = await axios.get(`${BASE_URL}/maintenance`, {
-          headers: {
-            Authorization: `Bearer ${Token}`,
-          },
-        });
-        const data = res.data;
-        setMaintenances(data);
-      }
-      catch (error) {
-        console.error("Lỗi fetch data maintenance :", error.message);
-      }
-    };
     fetchMaintenances();
   }, []);
+  const fetchMaintenances = async () => {
+    const Token = await AsyncStorage.getItem('token');;
+    try {
+      const res = await axios.get(`${BASE_URL}/maintenance`, {
+        headers: {
+          Authorization: `Bearer ${Token}`,
+        },
+      });
+      const maintenanceData = await Promise.all(
+        res.data.map(async (item) => {
+          const model = await fetchCarModelById(item.car_id);
+          return { ...item, model }; 
+        })
+      );
+      setMaintenances(maintenanceData);
+    }
+    catch (error) {
+      console.error("Lỗi fetch data maintenance :", error.message);
+    }
+  };
+  const fetchCarModelById = async (carId) => {
+    console.log("Đang gọi API với carId:", carId);
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const res = await axios.get(`${BASE_URL}/vehicles/${carId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.data.model;
+    } catch (err) {
+      console.error("Lỗi fetch motor by ID:", err.message);
+      return "Không rõ";
+    }
+  };
+
 
   const toggleExpand = (id) => {
     setExpandedId(prev => prev === id ? null : id);
@@ -101,7 +122,7 @@ const MaintenanceScreen = ({ navigation }) => {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <TouchableOpacity onPress={() => toggleExpand(item.maintenance_id)}>
-                <Text style={styles.vehicleName}>Xe ID: {item.car_id}</Text>
+                <Text style={styles.vehicleName}>Xe ID: {item.model}</Text>
               </TouchableOpacity>
               {expandedId === item.maintenance_id && (
                 <>
