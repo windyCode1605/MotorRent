@@ -18,6 +18,30 @@ exports.getAllVehicles = async (req, res) => {
   }
 };
 
+
+
+
+// Lấy thông tin xe theo ID
+exports.getVehicleById = async (req, res) => {
+  const { carId } = req.params;
+  try {
+    const [rows] = await promiseDb.execute(
+      `SELECT * FROM car WHERE car_id = ?`,
+      [carId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy xe." });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (error) {
+    console.error("Lỗi truy vấn xe theo ID:", error);
+    res.status(500).json({ message: "Lỗi máy chủ" });
+  }
+};
+
+
 // Thêm mới xe
 exports.createVehicle = (req, res) => {
   const createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
@@ -75,6 +99,4 @@ exports.createVehicle = (req, res) => {
   });
 };
 
-exports.getNameAllVehicles = ( req , res ) => {
- 
-}
+
