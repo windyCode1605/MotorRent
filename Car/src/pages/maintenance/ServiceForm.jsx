@@ -1,4 +1,4 @@
-{/**Buoc 3 */}
+{/**Buoc 3 */ }
 import React, { useState } from 'react';
 import {
   View,
@@ -10,30 +10,27 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '@env';
 
 
-const ServiceForm = ({navigation}) => {
-  const [services, setServices] = useState([
-    {
-      id: '1',
-      name: 'Thay nhớt',
-      quantity: '2222',
-      price: '33',
-      total: '33',
-      note: '33',
-    },
-    ]);
+
+const ServiceForm = ({ route, navigation }) => {
+  const [services, setServices] = useState([]);
+  const { maintenance_id } = route.params;
+
+  useFocusEffect(
+    useCallback(() => {
+      fetServicesByMaintenance_id();
+      updateMaintenanceCost();
+    }, [maintenance_id])
+  );
 
   const addService = () => {
-    const newService = {
-      id: Date.now().toString(),
-      name: 'Tên dịch vụ',
-      quantity: '1',
-      price: '1',
-      total: '1',
-      note: '111',
-    };
-    setServices([...services, newService]);
+    return navigation.navigate('NewServiceScreen', { maintenance_id });
   };
 
   const updateField = (id, field, value) => {
@@ -46,7 +43,50 @@ const ServiceForm = ({navigation}) => {
   const deleteService = id => {
     const filtered = services.filter(service => service.id !== id);
     setServices(filtered);
+    updateMaintenanceCost(); 
   };
+  const fetServicesByMaintenance_id = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${BASE_URL}/services/byMaintenance/${maintenance_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        setServices(response.data);
+      } else {
+        console.error('Không thể tải dịch vụ :', response.statusText);
+      }
+    } catch (error) {
+      console.error('Lỗi lấy dữ liệu:', error.message);
+    }
+  };
+
+  // Cập nhật chi phí bảo trì
+  const updateMaintenanceCost = async () => {
+  try {
+    const totalCost = services.reduce((sum, item) => {
+      const quantity = Number(item.quantity) || 0;
+      const unit_price = Number(item.unit_price) || 0;
+      return sum + quantity * unit_price;
+    }, 0);
+
+    const token = await AsyncStorage.getItem('token');
+    await axios.put(`${BASE_URL}/maintenance/updateCost/${maintenance_id}`, {
+      cost: totalCost,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Cập nhật chi phí thành công:", totalCost);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật chi phí:", error.message);
+  }
+};
+
 
   const renderItem = ({ item, index }) => (
     <View style={styles.serviceBox}>
@@ -54,7 +94,7 @@ const ServiceForm = ({navigation}) => {
         <View style={styles.circleNumber}>
           <Text style={styles.circleText}>{index + 1}</Text>
         </View>
-        <Text style={styles.serviceTitle}>{item.name}</Text>
+        <Text style={styles.serviceTitle}>{item.service_name}</Text>
       </View>
 
       <View style={styles.serviceRow}>
@@ -68,15 +108,15 @@ const ServiceForm = ({navigation}) => {
         </View>
         <View style={styles.serviceRow1}>
           <Text style={styles.serviceLabel}>Đơn giá</Text>
-          <Text>{item.price}</Text>
+          <Text>{item.unit_price}</Text>
         </View>
         <View style={styles.serviceRow1}>
           <Text style={styles.serviceLabel}>Thành tiền</Text>
-          <Text>{item.total}</Text>
+          <Text>{item.total_price}</Text>
         </View>
         <View style={styles.serviceRow1}>
           <Text style={styles.serviceLabel}>Ghi chú</Text>
-          <Text>{item.note}</Text>
+          <Text>{item.notes}</Text>
         </View>
       </View>
 
@@ -108,7 +148,7 @@ const ServiceForm = ({navigation}) => {
       <FlatList
         data={services}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.service_id}
       />
 
       <TouchableOpacity style={styles.addButton} onPress={addService}>
