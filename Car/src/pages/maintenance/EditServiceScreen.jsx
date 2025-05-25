@@ -50,7 +50,6 @@ const EditServiceScreen = ({ navigation, route }) => {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin.');
       return;
     }
-
     setIsSubmitting(true);
     try {
         const token = await AsyncStorage.getItem('token');
@@ -63,7 +62,7 @@ const EditServiceScreen = ({ navigation, route }) => {
         // total_price is calculated on the backend or via generated column
       };
 
-      await axios.post(`${BASE_URL}/services/create`, payload, {
+      await axios.post(`${BASE_URL}/services/update`, payload, {
         headers:{
             Authorization: `Bearer ${token}`,
         },
