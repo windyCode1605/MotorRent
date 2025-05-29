@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { BASE_URL } from '@env';
 
 export default function VehicleListScreen({ navigation }) {
   const [vehicles, setVehicles] = useState([]);
@@ -8,8 +9,8 @@ export default function VehicleListScreen({ navigation }) {
   const fetchVehicles = async (searchTerm = '') => {
     try {
       const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
-      const response = await fetch(`http://YOUR_BACKEND_IP:3000/api/vehicles?${params.toString()}`);
+      if (searchTerm) params.append('search', searchTerm);      
+      const response = await fetch(`${BASE_URL}/api/vehicles?${params.toString()}`);
       const data = await response.json();
       setVehicles(data);
     } catch (error) {

@@ -42,6 +42,9 @@ import NotificationSettingsScreen from "../pages/acount/NotificationSettingsScre
 
 import ListSelector from "../pages/Lists/ListSelector";
 
+import ListEmployeeScreen from "../pages/Employee/ListEmployeeScreen";
+import AddEmployeeScreen from "../pages/Employee/AddEmployeeScreen";
+import EditEmployeeScreen from "../pages/Employee/EditEmployeeScreen";
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -66,7 +69,7 @@ const AppNavigator = () => {
       <Stack.Screen name='serviceForm' component={serviceForm} options={{headerShown: false}}/>
       <Stack.Screen name='EditServiceScreen' component={EditServiceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='NewServiceScreen' component={NewServiceScreen} options={{headerShown: false}}/>
-      {/** Của Ho so */}
+      
       <Stack.Screen name='personalScreen' component={personalScreen} options={{headerShown: false}}/>
       <Stack.Screen name='ChangePasswordScreen' component={ChangePasswordScreen} options={{headerShown: false}}/>
       <Stack.Screen name='LoginHistory' component={LoginHistoryScreen} options={{headerShown: false}}/>
@@ -81,10 +84,12 @@ const AppNavigator = () => {
       <Stack.Screen name='Payment' component={PaymentScreen} options={{headerShown: false}}/>
       <Stack.Screen name='MoMoWebView' component={MoMoWebViewScreen} options={{headerShown: false}}/>
       <Stack.Screen name='PaymentSuccess' component={PaymentSuccessScreen} options={{headerShown: false}}/>
-      <Stack.Screen name='Cofirmed' component={Cofirmed} options={{headerShown: false}}/>
-
+      <Stack.Screen name='Cofirmed' component={Cofirmed} options={{headerShown: false}}/>      
       <Stack.Screen name='HoiSo' component={HoiSo} options={{headerShown: false}}/>
       <Stack.Screen name='VerifyBooking' component={VerifyBookingScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='ListEmployee' component={ListEmployeeScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='AddEmployee' component={AddEmployeeScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='EditEmployee' component={EditEmployeeScreen} options={{headerShown: false}}/>
     </Stack.Navigator>
   );
 }

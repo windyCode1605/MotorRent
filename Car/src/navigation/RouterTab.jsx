@@ -9,7 +9,6 @@ import WarningScreen from "../pages/WarningScreen";
 import HomeScreenCus from "../pages/motor/HomeScreenCus";
 import ReservationHistoryScreen from "../pages/motor/ReservationHistoryScreen";
 import PersonalScreen from "../pages/acount/ProfileScreen";
-
 const Tab = createBottomTabNavigator();
 
 const screenOptions = ({ route }) => ({

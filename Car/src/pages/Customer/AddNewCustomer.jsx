@@ -29,12 +29,10 @@ const AddNewCustomer = ( {navigation} ) => {
   const [loading, setLoading] = useState(false);
 
 
-  // Hàm xử lý thay đổi giá trị của từng trường
   const handleChange = (name, value) => {
     setCustomerData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Hàm xử lý khi nhấn "Thêm mới"
   const handleAddNew = async () => {
     setLoading(true); 
     try {

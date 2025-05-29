@@ -115,7 +115,7 @@ exports.cancelReservation = async (req, res) => {
     const { reservation_id } = req.params;
     const { account_id } = req.user;
 
-    // Check if reservation exists and belongs to user
+    
     const [reservations] = await db.execute(
       'SELECT r.*, p.status as payment_status FROM reservations r LEFT JOIN payments p ON r.reservation_id = p.reservation_id WHERE r.reservation_id = ? AND r.customer_id IN (SELECT customer_id FROM customers WHERE account_id = ?)',
       [reservation_id, account_id]
@@ -127,12 +127,11 @@ exports.cancelReservation = async (req, res) => {
 
     const reservation = reservations[0];
 
-    // Check if reservation can be canceled
+
     if (reservation.status !== 'pending' && reservation.status !== 'confirmed') {
       return res.status(400).json({ message: 'Chỉ có thể hủy đơn đặt xe ở trạng thái chờ xác nhận hoặc đã xác nhận.' });
     }
 
-    // If payment was made, initiate refund
     if (reservation.payment_status === 'success') {
       await db.execute(
         'INSERT INTO refunds (payment_id, amount, status) SELECT p.payment_id, p.amount, "pending" FROM payments p WHERE p.reservation_id = ?',
@@ -140,7 +139,6 @@ exports.cancelReservation = async (req, res) => {
       );
     }
 
-    // Cancel the reservation
     await db.execute(
       'UPDATE reservations SET status = "canceled", updated_at = NOW() WHERE reservation_id = ?',
       [reservation_id]

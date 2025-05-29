@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import axios from 'axios';
 import { BASE_URL } from '@env';
-console.log("URL Login:", BASE_URL);
+console.log("BASE URL LoginScreen:", BASE_URL);
 
 
 const LoginScreen = ({ navigation }) => {

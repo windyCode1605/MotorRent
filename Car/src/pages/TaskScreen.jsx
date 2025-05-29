@@ -95,9 +95,7 @@ const TaskScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.option}>
           <Text><Icon name='office-building' size={24} color={'blue'} /> Chi nhánh</Text>
           <Icon name="chevron-right" size={30} color={"#999"} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.option}>
+        </TouchableOpacity>        <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('ListEmployee')}>
           <Text><Icon name='account-group' size={24} color={'blue'} /> Nhân viên và vai trò</Text>
           <Icon name="chevron-right" size={30} color={"#999"} />
         </TouchableOpacity>

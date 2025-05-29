@@ -12,13 +12,14 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ROUTES
-const login              = require('./Routes/authRoutes');
-const customerRoutes     = require('./Routes/customerRoutes');
-const rentalAddonRoutes  = require('./Routes/rentalAddonsRoutes');
-const reservationRoutes  = require('./Routes/reservationRoutes');
-const vehicleRoutes      = require('./Routes/vehicleRoutes');
-const momoRoutes         = require('./Routes/paymentRoute');
-const contractRoute      = require('./Routes/contractRoute');
+const login                    = require('./Routes/authRoutes');
+const customerRoutes           = require('./Routes/customerRoutes');
+const rentalAddonRoutes        = require('./Routes/rentalAddonsRoutes');
+const reservationRoutes        = require('./Routes/reservationRoutes');
+const vehicleRoutes            = require('./Routes/vehicleRoutes');
+const momoRoutes               = require('./Routes/paymentRoute');
+const contractRoute            = require('./Routes/contractRoute');
+const bookingVerificationRoute = require('./Routes/reservationVerificationRoute');
 const maintenanceRoute   = require('./Routes/maintenanceRoute');
 const receptionistRoutes = require('./Routes/receptionistRoute');
 const serviceRoute       = require('./Routes/serviceRoute');
@@ -28,8 +29,8 @@ const bookingRoutes      = require('./Routes/reservationVerificationRoute');
 const authenticateToken  = require('./middleware/authMiddleware');
 const { authorizeRoles } = require('./middleware/roleMiddleware');
 
-// API Routes
-app.use('/api', bookingRoutes);
+// Booking verification routes
+app.use('/api', authenticateToken, authorizeRoles('admin', 'staff'), bookingVerificationRoute);
 // PUBLIC ROUTES
 app.use('/', login);
 app.use('/customers', authenticateToken ,customerRoutes);

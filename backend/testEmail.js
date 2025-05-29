@@ -7,7 +7,7 @@ async function testEmail() {
     
     const testData = {
       email: process.env.EMAIL_USER, // Gửi tới chính email của bạn để test
-      customerName: 'Test User',
+      customerName: 'Mai Quang Nguyên',
       brand: 'Toyota',
       model: 'Camry',
       license_plate: '51F-123.45',

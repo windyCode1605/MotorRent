@@ -14,10 +14,9 @@ const getPendingReservations = async (req, res) => {
       JOIN car ON r.car_id = car.car_id
       WHERE r.status = 'pending'
       ORDER BY r.created_at DESC
-    `);
-
+    `);    // Return empty array instead of 404 when no reservations found
     if (!reservations.length) {
-      return res.status(404).json({ message: 'Không tìm thấy đơn đặt xe nào.' });
+      return res.json([]);
     }
 
   
