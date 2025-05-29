@@ -36,7 +36,7 @@ const getPendingReservations = async (req, res) => {
   }
 };
 
-// Cập nhật trạng thái đơn đặt xe
+
 const updateReservationStatus = async (req, res) => {
   const { reservation_id } = req.params;
   const { status } = req.body;
@@ -48,10 +48,9 @@ const updateReservationStatus = async (req, res) => {
   }
 
   try {
-    // Bắt đầu transaction
+
     await db.beginTransaction();
 
-    // Cập nhật trạng thái đơn đặt xe
     const [result] = await db.execute(
       'UPDATE reservations SET status = ?, updated_at = NOW() WHERE reservation_id = ?',
       [status, reservation_id]
@@ -62,7 +61,6 @@ const updateReservationStatus = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy đơn đặt xe.' });
     }
 
-    // Lấy thông tin đơn đặt xe sau khi cập nhật
     const [updatedReservation] = await db.execute(`
       SELECT r.*, c.customer_id, c.first_name, c.last_name, car.brand, car.model
       FROM reservations r 
