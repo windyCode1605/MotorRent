@@ -17,11 +17,9 @@ const ChangePasswordScreen = ({ navigation }) => {
       return;
     }
 
-    // TODO: Gửi yêu cầu đổi mật khẩu đến API ở đây
-    // Ví dụ: await changePasswordAPI({ oldPassword, newPassword })
 
     Alert.alert('Thành công', 'Đổi mật khẩu thành công');
-    navigation.goBack(); // quay lại màn hình trước
+    navigation.goBack(); 
   };
 
   return (
