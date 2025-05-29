@@ -27,6 +27,7 @@ import Cofirmed from "../pages/ContractDate/Cofirmed";
 import ListCus from "../pages/Customer/ListCus";
 import AddNewCustomer from "../pages/Customer/AddNewCustomer";
 import VerifyBookingScreen from "../pages/Booking/VerifyBookingScreen";
+import VehicleListScreen from "../pages/Lists/VehicleListScreen";
 
 import MaintenanceItem from "../pages/maintenance/maintenance";
 import newMaintenance from "../pages/maintenance/newMaintenance";
@@ -58,6 +59,7 @@ const AppNavigator = () => {
       <Stack.Screen name='TaskScreen' component={TaskScreen} options={{headerShown: false}}/>
       <Stack.Screen name='WarningScreen' component={WarningScreen} options={{headerShown: false}}/>
       <Stack.Screen name='ListSelector' component={ListSelector} options={{headerShown: false}}/>
+      <Stack.Screen name='VehicleListScreen' component={VehicleListScreen} options={{headerShown: false}}/>
      
       <Stack.Screen name='maintenance' component={MaintenanceItem} options={{headerShown: false}}/>
       <Stack.Screen name='newMaintenance' component={newMaintenance} options={{headerShown: false}}/>
