@@ -91,7 +91,6 @@ const NewServiceScreen = ({ navigation, route }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.form}>
-        {/* Dịch vụ */}
         <Text style={styles.label}>Dịch vụ<Text style={{ color: 'red' }}> *</Text></Text>
         <View style={styles.inputWrapper}>
           <Picker
@@ -105,7 +104,6 @@ const NewServiceScreen = ({ navigation, route }) => {
           </Picker>
         </View>
 
-        {/* Đơn vị */}
         <Text style={styles.label}>Đơn vị</Text>
         <View style={styles.inputWrapper}>
           <Picker
@@ -121,7 +119,6 @@ const NewServiceScreen = ({ navigation, route }) => {
           </Picker>
         </View>
 
-        {/* Số lượng & Đơn giá */}
         <View style={styles.row}>
           <View style={styles.halfInput}>
             <Text style={styles.label}>Số lượng</Text>
@@ -146,7 +143,7 @@ const NewServiceScreen = ({ navigation, route }) => {
           </View>
         </View>
 
-        {/* Thành tiền */}
+       
         <Text style={styles.label}>Thành tiền</Text>
         <TextInput
           style={styles.textInput}
@@ -154,7 +151,7 @@ const NewServiceScreen = ({ navigation, route }) => {
           value={`${total.toLocaleString()} đ`}
         />
 
-        {/* Ghi chú */}
+        
         <Text style={styles.label}>Ghi chú</Text>
         <TextInput
           style={[styles.textInput, { height: 100, textAlignVertical: 'top' }]}
@@ -165,7 +162,7 @@ const NewServiceScreen = ({ navigation, route }) => {
         />
       </ScrollView>
 
-      {/* Nút Lưu */}
+     
       <TouchableOpacity
         style={[styles.saveButton, isSubmitting && { backgroundColor: '#aaa' }]}
         onPress={handleSave}
