@@ -21,7 +21,7 @@ const VerifyBookingScreen = () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log("Token in VerifyBookingScreen:", token);        const res = await axios.get(`http://10.10.2.251:3000/api/reservations/pending`, {
+      console.log("Token in VerifyBookingScreen:", token);        const res = await axios.get(`${BASE_URL}/api/reservations/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data);
@@ -71,7 +71,7 @@ const VerifyBookingScreen = () => {
       const receptionist_id = decoded.account_id; 
 
       const status = newStatus === "Đã xác nhận" ? "confirmed" : "canceled";        await axios.put(
-        `http://10.10.2.251:3000/api/reservations/update/${reservation_id}`,
+        `${BASE_URL}/api/reservations/update/${reservation_id}`,
         {
           status,
           receptionist_id,
