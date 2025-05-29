@@ -58,24 +58,20 @@ exports.forgotPassword = async (req, res) => {
   }
 
   try {
-    // Kiểm tra email có tồn tại không
+    
     const [accounts] = await db.query("SELECT * FROM accounts WHERE email = ? AND is_active = '1'", [email]);
 
     if (accounts.length === 0) {
       return res.status(404).json({ message: "Email không tồn tại trong hệ thống" });
     }
-
-    // Tạo mã OTP
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
 
-    // Lưu OTP vào database
     await db.query(
       "UPDATE accounts SET reset_token = ?, reset_token_expires = ? WHERE email = ?",
       [otp, otpExpiry, email]
     );
 
-    // Gửi email với mã OTP
     const emailSent = await sendPasswordResetEmail(email, otp);
 
     if (!emailSent) {
