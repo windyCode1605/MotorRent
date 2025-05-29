@@ -79,11 +79,9 @@ const MaintenanceScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Nội dung chính */}
       <View style={{ flex: 1 }}>
-        {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('TaskScreen')}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Icon name="arrow-left" size={28} />
           </TouchableOpacity>
 
