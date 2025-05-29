@@ -121,7 +121,7 @@ const TaskScreen = ({ navigation }) => {
             <Text style={styles.modalItemText}>Khách hàng</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.modalItem} onPress={() => navigateTo("ListMotor")}>
+          <TouchableOpacity style={styles.modalItem} onPress={() => navigateTo("VehicleListScreen")}>
             <Icon name="car" size={22} color="blue" />
             <Text style={styles.modalItemText}>Danh sách xe</Text>
           </TouchableOpacity>
