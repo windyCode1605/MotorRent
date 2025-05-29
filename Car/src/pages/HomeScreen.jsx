@@ -7,7 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import TabNavigator from "../navigation/RouterTab";
 
-// Dữ liệu giả danh sách chi nhánh
+
 const branches = [
   {
     id: "1",
