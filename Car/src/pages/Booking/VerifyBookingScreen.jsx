@@ -11,41 +11,38 @@ import {
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { BASE_URL } from "@env";
 import { socketManager } from "../../utils/socket";
-
-console.log("BASE URL VerifyBookingScreen:", BASE_URL);
+import { BASE_URL } from "@env";
+console.log("BASE URL verifyBookingScreen : ", BASE_URL);
 
 const VerifyBookingScreen = () => {
   const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const fetchPendingBookings = async () => {
+  const [loading, setLoading] = useState(false); const fetchPendingBookings = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log("Token in VerifyBookingScreen:", token);
-      const res = await axios.get(`${BASE_URL}/Booking/pending`, {
+      console.log("Token in VerifyBookingScreen:", token);        const res = await axios.get(`http://10.10.2.251:3000/api/reservations/pending`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách đơn chờ xác nhận:", error.message);
+      Alert.alert("Lỗi", "Không thể tải danh sách đơn đặt xe");
     } finally {
       setLoading(false);
     }
-  };  useEffect(() => {
+  }; useEffect(() => {
     const initializeSocket = async () => {
       const token = await AsyncStorage.getItem('token');
       if (token) {
         const decoded = JSON.parse(atob(token.split('.')[1]));
         console.log('Decoded token:', decoded);
         socketManager.connect(decoded.account_id);
-        
+
         if (socketManager.socket) {
-          // Listen for booking status updates
           socketManager.socket.on("bookingStatusUpdated", (data) => {
             console.log("Received booking update:", data);
-            fetchPendingBookings(); // Refresh the list when a booking is updated
+            fetchPendingBookings(); 
           });
         }
       }
@@ -61,34 +58,41 @@ const VerifyBookingScreen = () => {
       }
     };
   }, []);
-
-  const handleUpdateStatus = async (rental_id, newStatus) => {
+  const handleUpdateStatus = async (reservation_id, newStatus) => {
     const token = await AsyncStorage.getItem("token");
+
+    if (!token) {
+      Alert.alert("Lỗi", "Không tìm thấy token.");
+      return;
+    }
+
     try {
-      await axios.put(
-        `${BASE_URL}/Booking/update/${rental_id}`,
-        { status: newStatus },
+      const decoded = JSON.parse(atob(token.split('.')[1]));
+      const receptionist_id = decoded.account_id; 
+
+      const status = newStatus === "Đã xác nhận" ? "confirmed" : "canceled";        await axios.put(
+        `http://10.10.2.251:3000/api/reservations/update/${reservation_id}`,
+        {
+          status,
+          receptionist_id,
+        },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
-      );      // Emit socket event for real-time notification
-      if (socket.socket) {
-        socket.socket.emit("bookingStatusChange", {
-          rental_id,
-          status: newStatus,
-          message: `Đơn đặt xe của bạn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "từ chối"}.`,
-        });
-      }
-
-      Alert.alert(
-        "Thành công",
-        `Đơn đã được ${
-          newStatus === "Đã xác nhận" ? "xác nhận" : "từ chối"
-        }.`
       );
+
+      // Gửi socket để thông báo real-time
+      socketManager.socket?.emit("reservationStatusChange", {
+        reservation_id,
+        status,
+        message: `Đơn đặt xe của bạn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "từ chối"}.`,
+      });
+
+      Alert.alert("Thành công", `Đơn đã được ${newStatus === "Đã xác nhận" ? "xác nhận" : "từ chối"}.`);
       fetchPendingBookings();
+
     } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error.message);
+      console.error("Lỗi khi cập nhật trạng thái:", error);
       Alert.alert("Lỗi", "Không thể cập nhật trạng thái đơn.");
     }
   };
@@ -103,27 +107,35 @@ const VerifyBookingScreen = () => {
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Xe:</Text>
-        <Text>{item.model}</Text>
+        <Text>{item.brand} {item.model}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Biển số:</Text>
+        <Text>{item.license_plate}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Ngày thuê:</Text>
-        <Text>{item.start_date}</Text>
+        <Text>{new Date(item.start_date).toLocaleDateString('vi-VN')}</Text>
       </View>
       <View style={styles.row}>
         <Text style={styles.label}>Ngày trả:</Text>
-        <Text>{item.end_date}</Text>
+        <Text>{new Date(item.end_date).toLocaleDateString('vi-VN')}</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.label}>Tổng tiền:</Text>
+        <Text>{Number(item.total_price).toLocaleString('vi-VN')}đ</Text>
       </View>
       <View style={styles.buttonRow}>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#28a745" }]}
-          onPress={() => handleUpdateStatus(item.rental_id, "Đã xác nhận")}
+          onPress={() => handleUpdateStatus(item.reservation_id, "Đã xác nhận")}
         >
           <Icon name="check" size={20} color="#fff" />
           <Text style={styles.buttonText}>Xác nhận</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: "#dc3545" }]}
-          onPress={() => handleUpdateStatus(item.rental_id, "Từ chối")}
+          onPress={() => handleUpdateStatus(item.reservation_id, "Từ chối")}
         >
           <Icon name="close" size={20} color="#fff" />
           <Text style={styles.buttonText}>Từ chối</Text>
@@ -143,13 +155,13 @@ const VerifyBookingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Kiểm duyệt đơn đặt xe</Text>
+      <Text style={styles.title}>Kiểm duyệt đơn đặt xe</Text>
       {bookings.length === 0 ? (
         <Text style={styles.center}>Không có đơn chờ xác nhận.</Text>
       ) : (
         <FlatList
           data={bookings}
-          keyExtractor={(item) => item.rental_id.toString()}
+          keyExtractor={(item) => item.reservation_id.toString()}
           renderItem={renderItem}
           contentContainerStyle={{ paddingBottom: 20 }}
         />
@@ -159,40 +171,66 @@ const VerifyBookingScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 15, backgroundColor: "#f9f9f9" },
-  header: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f9f9f9",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginVertical: 12,
+    textAlign: "center",
+    color: "#333",
+  },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    elevation: 2,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 5,
+    marginVertical: 4,
   },
-  label: { fontWeight: "bold" },
+  label: {
+    fontWeight: "600",
+    color: "#444",
+    fontSize: 14,
+  },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
+    justifyContent: "space-between",
+    marginTop: 12,
   },
   button: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
-    borderRadius: 8,
-    minWidth: 100,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
     justifyContent: "center",
+    marginHorizontal: 5,
   },
-  buttonText: { color: "#fff", marginLeft: 5 },
+  buttonText: {
+    color: "#fff",
+    marginLeft: 6,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
 });
+
 
 export default VerifyBookingScreen;
