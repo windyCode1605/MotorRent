@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 export default function RegisterScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fullname, setFullname] = useState('');
   const [phone, setPhone] = useState('');
+  const [role, setRole] = useState('customer'); // mặc định là customer
 
   const handleRegister = () => {
-    // Gửi dữ liệu lên server (nếu có API) hoặc xử lý logic
-    if (username && password && fullname && phone) {
-      Alert.alert('Thành công', 'Bạn đã đăng ký thành công!');
-      navigation.replace('Login'); 
+    if (username && password && fullname && phone && role) {
+      // TODO: Gửi API đăng ký tại đây
+      Alert.alert('Thành công', `Bạn đã đăng ký với quyền: ${role}`);
+      navigation.replace('Login');
     } else {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin!');
     }
@@ -19,7 +28,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Đăng kí</Text>
+      <Text style={styles.title}>Đăng ký</Text>
 
       <TextInput
         style={styles.input}
@@ -27,7 +36,6 @@ export default function RegisterScreen({ navigation }) {
         value={username}
         onChangeText={setUsername}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Mật khẩu*"
@@ -35,14 +43,12 @@ export default function RegisterScreen({ navigation }) {
         value={password}
         onChangeText={setPassword}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Họ và tên*"
         value={fullname}
         onChangeText={setFullname}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Số điện thoại*"
@@ -51,8 +57,20 @@ export default function RegisterScreen({ navigation }) {
         onChangeText={setPhone}
       />
 
+      <Text style={styles.label}>Chọn quyền:</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={role}
+          onValueChange={(itemValue) => setRole(itemValue)}
+        >
+          <Picker.Item label="Khách hàng" value="customer" />
+          <Picker.Item label="Nhân viên" value="staff" />
+          <Picker.Item label="Quản trị viên" value="admin" />
+        </Picker>
+      </View>
+
       <TouchableOpacity style={styles.btnRegister} onPress={handleRegister}>
-        <Text style={styles.btnRegisterText}>Đăng kí</Text>
+        <Text style={styles.btnRegisterText}>Đăng ký</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -84,6 +102,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: '#fff',
   },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 16,
+  },
+  label: {
+    fontWeight: '500',
+    marginBottom: 6,
+    marginLeft: 4,
+    color: '#333',
+  },
   btnRegister: {
     backgroundColor: '#0275d8',
     paddingVertical: 14,
@@ -102,3 +133,4 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+exports.default.RegisterScreen = RegisterScreen;

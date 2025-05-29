@@ -7,9 +7,9 @@ import { Picker } from '@react-native-picker/picker';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from '@env';
 
-console.log("Base url: ", BASE_URL);
+import { BASE_URL } from '@env';
+console.log("BASE URL EditServiceScreen:", BASE_URL);
 
 
 const EditServiceScreen = ({ navigation, route }) => {

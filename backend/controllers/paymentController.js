@@ -24,7 +24,7 @@ exports.createMoMoPayment = async (req, res) => {
     var secretKey = 'K951B6PE1waDMi640xX08PD3vg6EkVlz';
     var orderInfo = 'pay with MoMo';
     var partnerCode = 'MOMO';
-    var redirectUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
+    var redirectUrl = 'carvip1://payment-success';
     var ipnUrl = 'https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b';
     var requestType = "payWithMethod";
     var amount = total_price;
@@ -102,7 +102,7 @@ exports.createMoMoPayment = async (req, res) => {
 
 
 
-///////////////////
+
 exports.handleMomoIPN = async (req, res) => {
   try {
     const {
@@ -116,9 +116,9 @@ exports.handleMomoIPN = async (req, res) => {
 
     console.log("Nhận IPN từ MoMo:", req.body);
 
-    // Kiểm tra trạng thái thanh toán thành công
+ 
     if (resultCode === 0) {
-      // Cập nhật đơn hàng trong DB
+      
       await db.execute(
         "UPDATE payments SET status = ?, updated_at = NOW() WHERE order_id = ?",
         ['success', orderId]
@@ -136,3 +136,28 @@ exports.handleMomoIPN = async (req, res) => {
     return res.status(500).json({ message: "Lỗi server" });
   }
 }
+
+// Cập nhật trạng thái thanh toán
+exports.updatePaymentStatus = async (req, res) => {
+  const { orderId, status } = req.body;
+
+  if (!orderId || !status) {
+    return res.status(400).json({ message: "Thiếu orderId hoặc status" });
+  }
+
+  try {
+    const [result] = await db.execute(
+      "UPDATE payments SET status = ?, updated_at = NOW() WHERE order_id = ?",
+      [status, orderId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    return res.status(200).json({ message: "Cập nhật trạng thái thành công" });
+  } catch (error) {
+    console.error("Lỗi cập nhật trạng thái thanh toán:", error);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+};

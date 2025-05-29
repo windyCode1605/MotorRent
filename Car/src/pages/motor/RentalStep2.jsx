@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList , ActivityIndicator} from 'react-native';
-import { BASE_URL } from '@env';
 import axios from 'axios';
-console.log("BASE_URL trong RentalStep2:", BASE_URL); // Kiểm tra giá trị của BASE_URL
+import { BASE_URL } from '@env';
+console.log("BASE URL RentalStep2:", BASE_URL);
+
 
 
 const RentalStep2 = ({ route, navigation }) => {

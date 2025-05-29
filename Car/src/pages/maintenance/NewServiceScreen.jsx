@@ -8,8 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@env';
-
-console.log("Base url: ", BASE_URL);
+console.log("BASE URL NewServiceScreen:", BASE_URL);
 
 
 const NewServiceScreen = ({ navigation, route }) => {

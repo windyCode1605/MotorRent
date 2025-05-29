@@ -1,39 +1,79 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Text, FlatList, TextInput, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Text, FlatList, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import axios from "axios";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { BASE_URL } from '@env';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-
-console.log("BASE_URL list customer : ",BASE_URL);
-
+import React, { useEffect, useState } from "react";
+import { BASE_URL } from "@env";
+console.log("BASE URL ListCus:", BASE_URL);
 
 
 
 const ListCus = ({navigation}) => {
     const [customers, setCustomers] = useState([]); 
     const [searchQuery, setSearchQuery] = useState(''); 
+    const [loading, setLoading] = useState(false);
 
     // lấy dữ liệu khách hàng từ API
-    useEffect(() => {
     const fetchCustomers = async () => {
-        const token = AsyncStorage.getItem('token');
+        const token = await AsyncStorage.getItem('token');
+        console.log("Token in ListCus:", token);
         try {
-        const response = await axios.get(`${BASE_URL}/customers`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        const data = response.data;
-        setCustomers(data);
+            const response = await axios.get(`${BASE_URL}/customers`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = response.data;
+            setCustomers(data);
         } catch (error) {
-        console.error('Error fetch customer:', error);
+            console.error('Error fetch customer:', error);
+            Alert.alert('Lỗi', 'Không thể tải danh sách khách hàng');
         }
     };
-    fetchCustomers();
+
+    useEffect(() => {
+        fetchCustomers();
     }, []);
 
+    const handleDeleteCustomer = async (customerId) => {
+        Alert.alert(
+            "Xác nhận xóa",
+            "Bạn có chắc chắn muốn xóa khách hàng này không?",
+            [
+                {
+                    text: "Hủy",
+                    style: "cancel"
+                },
+                {
+                    text: "Xóa",
+                    onPress: async () => {
+                        setLoading(true);
+                        try {
+                            const token = await AsyncStorage.getItem('token');
+                            await axios.delete(`${BASE_URL}/customers/${customerId}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                }
+                            });
+                            
+                            Alert.alert("Thành công", "Đã xóa khách hàng");
+                            // Refresh danh sách
+                            fetchCustomers();
+                        } catch (error) {
+                            console.error('Lỗi xóa khách hàng:', error);
+                            Alert.alert(
+                                "Lỗi",
+                                error.response?.data?.message || "Không thể xóa khách hàng"
+                            );
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    style: "destructive"
+                }
+            ]
+        );
+    };
 
     // Lọc khách hàng dựa trên từ khóa tìm kiếm
     const filteredCustomers = customers.filter(customer =>
@@ -44,7 +84,9 @@ const ListCus = ({navigation}) => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Icon name='arrow-left' size={35} />
+                </TouchableOpacity>
                 <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Danh sách khách hàng</Text>
                 <Icon name="menu" size={35} />
             </View>
@@ -55,8 +97,8 @@ const ListCus = ({navigation}) => {
                     style={styles.TIP}
                     placeholder="Tìm kiếm theo tên, SDT"
                     placeholderTextColor={'gray'}
-                    value={searchQuery}           // Gắn giá trị tìm kiếm
-                    onChangeText={setSearchQuery} // Cập nhật giá trị tìm kiếm khi người dùng nhập
+                    value={searchQuery}           
+                    onChangeText={setSearchQuery} 
                 />
             </View>
 
@@ -81,10 +123,21 @@ const ListCus = ({navigation}) => {
                         <View style={styles.item}>
                             <Text style={styles.TextItems}>Tổng thuê</Text>
                             <Text style={{ fontSize: 15, fontWeight: '400', color: 'blue' }}>{item.total_rent} đ</Text>
-                        </View>
-                        <View style={styles.buttons}>
-                            <TouchableOpacity style={[styles.button,{backgroundColor: '#62A7F6'}]}><Icon name="skull" size={20} color={'blue'} /><Text>Sửa</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.button}><Icon name="delete" size={20} color={'red'} /><Text>Xóa</Text></TouchableOpacity>
+                        </View>                        <View style={styles.buttons}>
+                            <TouchableOpacity 
+                                style={[styles.button, {backgroundColor: '#62A7F6'}]}
+                                onPress={() => navigation.navigate('EditCustomer', { customer: item })}
+                            >
+                                <Icon name="pencil" size={20} color={'white'} />
+                                <Text style={styles.buttonText}>Sửa</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={styles.button}
+                                onPress={() => handleDeleteCustomer(item.customer_id)}
+                            >
+                                <Icon name="delete" size={20} color={'white'} />
+                                <Text style={styles.buttonText}>Xóa</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 )}
@@ -106,9 +159,29 @@ const styles = StyleSheet.create({
     icon: { marginLeft: 10 },
     item: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: 'gray', padding: 20 },
     TextName: { fontSize: 15, fontWeight: '500', paddingLeft: 30, paddingBottom: 5, paddingTop: 30 },
-    TextItems: { color: '#AAA', fontSize: 15 },
-    buttons: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 70 },
-    button: { flexDirection: 'row', width: 80, height: 35, backgroundColor: '#FF8284', justifyContent: 'center', alignItems: 'center', borderRadius: 20 },
+    TextItems: { color: '#AAA', fontSize: 15 },    buttons: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-around', 
+        alignItems: 'center', 
+        paddingVertical: 10, 
+        paddingHorizontal: 70 
+    },
+    button: { 
+        flexDirection: 'row', 
+        width: 90, 
+        height: 40, 
+        backgroundColor: '#FF8284', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        borderRadius: 20,
+        gap: 5
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: '600',
+        marginLeft: 4
+    },
     addButton: { position: 'absolute', bottom: 120, right: 20, backgroundColor: 'blue', width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', elevation: 5, zIndex: 1000 },
 });
 

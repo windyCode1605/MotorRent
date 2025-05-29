@@ -4,11 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage"; 
 import axios from 'axios';
 import { BASE_URL } from '@env';
-console.log("BASE_URL LOGIN :", BASE_URL);
-
-
-
-
+console.log("URL Login:", BASE_URL);
 
 
 const LoginScreen = ({ navigation }) => {
@@ -16,20 +12,44 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const validateEmail = (email) => {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,})$/i;
+    return re.test(email);
+  };
 
   const handleLogin = async () => {
+    let valid = true;
+    setEmailError('');
+    setPasswordError('');
+
+    if (!email) {
+      setEmailError('Vui lòng nhập email');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Email không hợp lệ');
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError('Vui lòng nhập mật khẩu');
+      valid = false;
+    }
+
+    if (!valid) return;
+
     setIsLoading(true); 
     try {
       const response = await axios.post(`${BASE_URL}/login`, { email, password });
       const { token, role, account_id } = response.data;
 
       await AsyncStorage.setItem('token', token);
-      await AsyncStorage.setItem('account_id', account_id.toString());
-
-      if (role.toLowerCase() === "admin") {
-        navigation.replace('Main');
+      await AsyncStorage.setItem('account_id', account_id.toString());      if (role.toLowerCase() === "admin") {
+        navigation.replace('AdminHome');
       } else if (role.toLowerCase() === "customer") {
-        navigation.replace('MotorScreen');
+        navigation.replace('CustomerHome');
       } else {
         Alert.alert("Lỗi", "Tài khoản không hợp lệ.");
       }
@@ -37,13 +57,12 @@ const LoginScreen = ({ navigation }) => {
       console.log("Lỗi Axios:", error);
       Alert.alert("Lỗi", "Không thể kết nối tới server hoặc sai thông tin đăng nhập.");
     } finally {
-      setIsLoading(false); // Kết thúc loading
+      setIsLoading(false);
     }
   };
-
   const handleTogglePassword = () => setShowPassword(!showPassword);
   const handleForgotPassword = () => {
-    Alert.alert('Quên mật khẩu', 'Vui lòng liên hệ bộ phận hỗ trợ để lấy lại mật khẩu.');
+    navigation.navigate("ForgotPassword");
   };
   const handleRegister = () => {
     navigation.navigate("RegisterScreen");
@@ -70,8 +89,11 @@ const LoginScreen = ({ navigation }) => {
         placeholder="Email"
         placeholderTextColor="#888"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={text => { setEmail(text); setEmailError(''); }}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
+      {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
       <View style={styles.passwordContainer}>
         <TextInput
@@ -80,7 +102,7 @@ const LoginScreen = ({ navigation }) => {
           placeholderTextColor="#888"
           secureTextEntry={!showPassword}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={text => { setPassword(text); setPasswordError(''); }}
         />
         <TouchableOpacity style={styles.eyeIcon} onPress={handleTogglePassword}>
           <Ionicons
@@ -90,6 +112,7 @@ const LoginScreen = ({ navigation }) => {
           />
         </TouchableOpacity>
       </View>
+      {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
       <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
         <Text style={styles.forgotPasswordText}>Quên mật khẩu</Text>
@@ -238,6 +261,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#333',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 8,
+    marginLeft: 4,
+    fontSize: 13,
   },
 });
 

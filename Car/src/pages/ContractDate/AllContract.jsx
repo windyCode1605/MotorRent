@@ -4,8 +4,9 @@ import { TextInput } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BASE_URL } from "@env";
 import axios from "axios";
+import { BASE_URL } from "@env";
+console.log("BASE URL AllContract:", BASE_URL);
 
 const status = ["Tất cả", "Chờ xác nhận", "Đã xác nhận", "Đang thuê", "Hoàn thành", "Hủy", "Xe sự cố"];
 
@@ -95,7 +96,7 @@ const AllContract = () => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('TaskScreen')}><Icon name='arrow-left' size={35} /></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()}><Icon name='arrow-left' size={35} /></TouchableOpacity>
         <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Hợp đồng ngày</Text>
         <Icon name="menu" size={35} />
       </View>

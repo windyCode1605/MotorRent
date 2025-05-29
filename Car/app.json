@@ -2,6 +2,8 @@
   "expo": {
     "name": "Car",
     "slug": "Car",
+    "scheme": "carvip1",
+    "deepLinking": true,
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "D:/Hoc TAP LA LAO DONG/Nam3/KY II/Do an da nen tang/CarVip/Car/assets/icon.png",
@@ -19,7 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "D:/Hoc TAP LA LAO DONG/Nam3/KY II/Do an da nen tang/CarVip/Car/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": {
+            "scheme": "carvip1"
+          },
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "D:/Hoc TAP LA LAO DONG/Nam3/KY II/Do an da nen tang/CarVip/Car/assets/favicon.png"

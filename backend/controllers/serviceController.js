@@ -3,13 +3,14 @@ const db = require('../config/db');
 
 
 
-// Get all services
+// Get
 exports.getAllServices = async (req, res) => {
     try {
-        const [rows] = await db.execute('SELECT * FROM service');
+        const [rows] = await db.query('SELECT * FROM service');
         res.json(rows);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Error getting services:', err);
+        res.status(500).json({ message: 'Lỗi khi lấy danh sách dịch vụ', error: err.message });
     }
 };
 // xóaxóa

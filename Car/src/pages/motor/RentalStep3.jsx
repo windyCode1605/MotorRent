@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { BASE_URL } from '@env';
-console.log("BASE_URL trong RentalStep3:", BASE_URL);   
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { BASE_URL } from '@env';
+console.log("BASE URL RentalStep3:", BASE_URL);
 
 const RentalStep3 = ({ route, navigation }) => {
   const { motorcycle, pickupLocation, pickupTime, returnLocation, returnTime, selectedIds, services } = route.params;

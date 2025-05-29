@@ -9,12 +9,12 @@ const PaymentSuccessScreen = () => {
     const timeout = setTimeout(() => {
       navigation.reset({
         index: 0,
-        routes: [{ name: 'MotorScreen' }], // tên screen bạn đã khai báo trong navigator
+        routes: [{ name: 'MotorScreen' }],
       });
     }, 3000);
 
     return () => clearTimeout(timeout);
-  }, [navigation]);
+  }, []);
 
   return (
     <View style={styles.container}>

@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { BASE_URL } from '@env';
-console.log("BASE_URL trong MotorcycleDetailScreen:", BASE_URL);
+console.log('BASE URL MotorcycleDetailScreen:', BASE_URL);
 
 const MotorcycleDetailScreen = ({ route }) => {
   const navigation = useNavigation();

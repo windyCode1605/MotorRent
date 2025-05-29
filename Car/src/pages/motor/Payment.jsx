@@ -1,42 +1,37 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from "@env";
-console.log("BASE_URL trong PaymentScreen:", BASE_URL); 
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { BASE_URL } from '@env';
+console.log("BASE URL PaymentScreen:", BASE_URL);
 
-const PaymentScreen = ({ route, navigation }) => {
+const PaymentScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
   const { reservationId, totalPrice } = route.params;
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Xử lý thanh toán MoMo
   const handleMoMoPayment = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-
       const response = await axios.post(`${BASE_URL}/payment/create`, {
         reservation_id: reservationId,
-        amount: totalPrice,
-        redirectUrl: 'yourapp://payment-result',
-        ipnUrl: `${BASE_URL}/payment/momo-ipn`
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const payUrl = response.data.payUrl;
       if (payUrl) {
-        Linking.openURL(payUrl); 
+        navigation.navigate('MoMoWebView', { payUrl });
       } else {
-        alert('Không lấy được đường dẫn thanh toán từ MoMo.');
+        Alert.alert('Không lấy được đường dẫn thanh toán từ MoMo.');
       }
-
     } catch (error) {
-      console.error("Lỗi khi tạo yêu cầu MoMo:", error.message);
-      alert('Có lỗi khi kết nối đến cổng thanh toán.');
+      console.error("Lỗi MoMo:", error);
+      Alert.alert('Có lỗi khi kết nối đến cổng thanh toán.');
     }
   };
 
-  // Xử lý thanh toán tiền mặt
   const handleCashPayment = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -45,15 +40,13 @@ const PaymentScreen = ({ route, navigation }) => {
       });
 
       if (res.data.success) {
-        Alert.alert("Xác nhận", "Bạn đã chọn thanh toán tiền mặt khi nhận xe.", [
-          { text: "OK", onPress: () => navigation.replace('SuccessScreen', { reservationId }) }
-        ]);
+        navigation.replace('PaymentSuccessScreen', { reservationId });
       } else {
-        alert("Không thể cập nhật phương thức thanh toán.");
+        Alert.alert("Không thể cập nhật phương thức thanh toán.");
       }
     } catch (error) {
-      console.error("Lỗi khi cập nhật thanh toán COD:", error.message);
-      alert("Có lỗi xảy ra khi chọn thanh toán tiền mặt.");
+      console.error("Lỗi COD:", error);
+      Alert.alert("Có lỗi xảy ra khi chọn thanh toán tiền mặt.");
     }
   };
 
@@ -75,7 +68,7 @@ const PaymentScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#f5f6fa' },
+  container: { flex: 1, justifyContent: 'center', padding: 20 },
   title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
   info: { fontSize: 16, marginBottom: 10, textAlign: 'center' },
   amount: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', color: '#e84118', marginBottom: 30 },

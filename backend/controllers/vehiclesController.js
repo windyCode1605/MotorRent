@@ -6,7 +6,45 @@ const promiseDb = require('../config/promiseDb');
 // Lấy danh sách xe
 exports.getAllVehicles = async (req, res) => {
   try {
-    const [rows] = await promiseDb.query('SELECT * FROM car');
+    const { search, status, brand, priceMin, priceMax } = req.query;
+    
+    let query = 'SELECT * FROM car WHERE 1=1';
+    const params = [];
+
+    // Tìm kiếm theo từ khóa
+    if (search) {
+      query += ' AND (brand LIKE ? OR model LIKE ? OR license_plate LIKE ?)';
+      const searchPattern = `%${search}%`;
+      params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    // Lọc theo trạng thái
+    if (status) {
+      query += ' AND status = ?';
+      params.push(status);
+    }
+
+    // Lọc theo hãng xe
+    if (brand) {
+      query += ' AND brand = ?';
+      params.push(brand);
+    }
+
+    // Lọc theo giá
+    if (priceMin) {
+      query += ' AND daily_rental_price >= ?';
+      params.push(parseFloat(priceMin));
+    }
+    if (priceMax) {
+      query += ' AND daily_rental_price <= ?';
+      params.push(parseFloat(priceMax));
+    }
+
+    // Sắp xếp theo ngày cập nhật mới nhất
+    query += ' ORDER BY updated_at DESC';
+
+    const [rows] = await promiseDb.execute(query, params);
+    
     const vehiclesWithFullImagePath = rows.map(car => ({
       ...car,
       image_url: `${req.protocol}://${req.get('host')}/${car.IMG_Motor}`

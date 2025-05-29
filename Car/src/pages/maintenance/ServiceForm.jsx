@@ -15,6 +15,7 @@ import { useCallback } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '@env';
+console.log("BASE URL ServiceForm:", BASE_URL);
 
 
 

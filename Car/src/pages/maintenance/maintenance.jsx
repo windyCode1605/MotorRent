@@ -6,11 +6,10 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { BASE_URL } from "@env";
 import axios from "axios";
 import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
-
-console.log("BASE_URL maintenance : ", BASE_URL);
+import { BASE_URL } from "@env";
+console.log("BASE URL MaintenanceScreen:", BASE_URL);
 
 
 
@@ -24,7 +23,7 @@ const MaintenanceScreen = ({ navigation }) => {
     fetchMaintenances();
   }, []);
   const fetchMaintenances = async () => {
-    const Token = await AsyncStorage.getItem('token');;
+    const Token = await AsyncStorage.getItem('token');
     try {
       const res = await axios.get(`${BASE_URL}/maintenance`, {
         headers: {

@@ -13,7 +13,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { BASE_URL } from "@env";
+import { BASE_URL } from '@env';
+console.log("BASE URL newMaintenance:", BASE_URL);
 
 
 const newMaintenance = ({ navigation }) => {
