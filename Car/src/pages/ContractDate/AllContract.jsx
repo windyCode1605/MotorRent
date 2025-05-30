@@ -1,46 +1,54 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import { TextInput } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
+  TextInput,
+  Modal,
+  Alert
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { BASE_URL } from "@env";
-console.log("BASE URL AllContract:", BASE_URL);
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { BASE_URL } from '@env';
+import { Picker } from '@react-native-picker/picker';
 
 const status = ["Tất cả", "Chờ xác nhận", "Đã xác nhận", "Đang thuê", "Hoàn thành", "Hủy", "Xe sự cố"];
-
-const handleRegister = (navigation, item) => {
-  navigation.navigate("RegisterScreen", { contract: item });
-};
+const paymentStatus = ['paid', 'unpaid', 'refunded'];
 
 const formatNumber = (num) => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-
-
-
-
 const AllContract = () => {
   const [contracts, setContracts] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("Tất cả");
+  const [loading, setLoading] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedContract, setSelectedContract] = useState(null);
+  const [searchText, setSearchText] = useState('');
   const navigation = useNavigation();
 
   const fetchAllContracts = async () => {
-    const Token = await AsyncStorage.getItem('token');
+    setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/contracts/getAll`, {
-        headers: { Authorization: `Bearer ${Token}` },
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${BASE_URL}/contracts`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      // Thêm isDropdownOpen vào mỗi contract
-      const contractsWithDropdown = res.data.map((contract) => ({
+      setContracts(response.data.map(contract => ({
         ...contract,
-        isDropdownOpen: false,
-      }));
-      setContracts(contractsWithDropdown);
+        isDropdownOpen: false
+      })));
     } catch (error) {
-      console.log("Lỗi khi lấy danh sách hợp đồng:", error.message);
+      console.error('Lỗi khi lấy danh sách hợp đồng:', error);
+      Alert.alert('Lỗi', 'Không thể tải danh sách hợp đồng');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,65 +56,185 @@ const AllContract = () => {
     fetchAllContracts();
   }, []);
 
-  // Lọc hợp đồng theo trạng thái
-  const filteredContracts = selectedStatus === "Tất cả"
-    ? contracts
-    : contracts.filter((contract) => contract.status === selectedStatus);
-
-  // Tính tổng tiền
-  const totalAmount = filteredContracts.reduce((sum, contract) =>sum +  parseFloat((contract.total_price || 0)), 0);
-
-  // Toggle dropdown cho contract cụ thể
-  const toggleStatusDropdown = (retal_id) => {
-    setContracts((prevContracts) =>
-      prevContracts.map((contract) =>
-        contract.retal_id === retal_id
-          ? { ...contract, isDropdownOpen: !contract.isDropdownOpen }
-          : { ...contract, isDropdownOpen: false } 
-      )
-    );
-  };
-
-
-  const handleStatusSelect = async (retal_id, newStatus) => {
-    const Token = await AsyncStorage.getItem('token');
+  const handleUpdateContract = async (values) => {
     try {
-      await axios.patch(
-        `${BASE_URL}/contracts/update/${retal_id}`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${Token}` } }
+      const token = await AsyncStorage.getItem('token');
+      await axios.put(
+        `${BASE_URL}/contracts/${selectedContract.rental_id}`,
+        values,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
-      setContracts((prevContracts) =>
-        prevContracts.map((contract) =>
-          contract.retal_id === retal_id
-            ? { ...contract, status: newStatus, isDropdownOpen: false }
-            : contract
-        )
-      );
+      Alert.alert('Thành công', 'Cập nhật hợp đồng thành công');
+      fetchAllContracts();
+      setEditModalVisible(false);
     } catch (error) {
-      console.log("Lỗi khi cập nhật trạng thái:", error.message);
+      console.error('Lỗi khi cập nhật hợp đồng:', error);
+      Alert.alert('Lỗi', 'Không thể cập nhật hợp đồng');
     }
   };
 
-  const handleTabSelect = (status) => {
-    setSelectedStatus(status);
+  const handleDeleteContract = async (rental_id) => {
+    Alert.alert(
+      'Xác nhận xóa',
+      'Bạn có chắc chắn muốn xóa hợp đồng này?',
+      [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Xóa',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const token = await AsyncStorage.getItem('token');
+              await axios.delete(`${BASE_URL}/contracts/${rental_id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              Alert.alert('Thành công', 'Xóa hợp đồng thành công');
+              fetchAllContracts();
+            } catch (error) {
+              console.error('Lỗi khi xóa hợp đồng:', error);
+              Alert.alert('Lỗi', 'Không thể xóa hợp đồng');
+            }
+          }
+        }
+      ]
+    );
   };
+
+  const EditContractModal = () => (
+    <Modal
+      visible={editModalVisible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setEditModalVisible(false)}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Cập nhật hợp đồng</Text>
+          
+          <View style={styles.inputContainer}>
+            <Text>Trạng thái:</Text>
+            <Picker
+              selectedValue={selectedContract?.status}
+              onValueChange={(value) => 
+                setSelectedContract({...selectedContract, status: value})
+              }
+              style={styles.picker}
+            >
+              {status.filter(s => s !== "Tất cả").map((s, index) => (
+                <Picker.Item key={index} label={s} value={s} />
+              ))}
+            </Picker>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text>Trạng thái thanh toán:</Text>
+            <Picker
+              selectedValue={selectedContract?.payment_status}
+              onValueChange={(value) => 
+                setSelectedContract({...selectedContract, payment_status: value})
+              }
+              style={styles.picker}
+            >
+              {paymentStatus.map((s, index) => (
+                <Picker.Item key={index} label={s} value={s} />
+              ))}
+            </Picker>
+          </View>
+
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.cancelButton]}
+              onPress={() => setEditModalVisible(false)}
+            >
+              <Text style={styles.buttonText}>Hủy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.saveButton]}
+              onPress={() => handleUpdateContract(selectedContract)}
+            >
+              <Text style={styles.buttonText}>Lưu</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const renderItem = ({ item }) => (
+    <View style={styles.View}>
+      <View style={[styles.item, { borderBottomWidth: 0, height: 40 }]}>
+        <Text style={{ fontWeight: 'bold' }}>{item.fullName}</Text>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            onPress={() => {
+              setSelectedContract(item);
+              setEditModalVisible(true);
+            }}
+            style={styles.editButton}
+          >
+            <Icon name="pencil" size={20} color="#4CAF50" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => handleDeleteContract(item.rental_id)}
+            style={styles.deleteButton}
+          >
+            <Icon name="delete" size={20} color="#F44336" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={[styles.item, { height: 40 }]}>
+        <Text>Ngày Thuê</Text>
+        <Text>{new Date(item.start_date).toLocaleDateString('vi-VN')}</Text>
+      </View>
+      <View style={styles.item}>
+        <Text>Số tiền</Text>
+        <Text>{formatNumber(item.total_price)}đ</Text>
+      </View>
+      <View style={styles.item}>
+        <Text>Đã trả</Text>
+        <Text>{item.payment_status}</Text>
+      </View>
+      <View style={styles.item}>
+        <Text>Trạng thái</Text>
+        <Text>{item.status}</Text>
+      </View>
+    </View>
+  );
+
+  // Lọc hợp đồng theo trạng thái và tìm kiếm
+  const filteredContracts = contracts
+    .filter(contract => 
+      selectedStatus === "Tất cả" || contract.status === selectedStatus
+    )
+    .filter(contract =>
+      contract.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
+      contract.rental_id.toString().includes(searchText)
+    );
+
+ 
+  const totalAmount = filteredContracts.reduce(
+    (sum, contract) => sum + parseFloat(contract.total_price || 0),
+    0
+  );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}><Icon name='arrow-left' size={35} /></TouchableOpacity>
-        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Hợp đồng ngày</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={35} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Hợp đồng ngày</Text>
         <Icon name="menu" size={35} />
       </View>
-      {/* Filter Tabs */}
+
       <ScrollView horizontal={true} style={styles.scroll}>
         {status.map((item, index) => (
           <TouchableOpacity
             key={index}
             style={[styles.items, selectedStatus === item ? styles.activeTab : null]}
-            onPress={() => handleTabSelect(item)}
+            onPress={() => setSelectedStatus(item)}
           >
             <Text style={styles.text}>{item}</Text>
           </TouchableOpacity>
@@ -116,75 +244,34 @@ const AllContract = () => {
       <View style={styles.Search}>
         <TextInput
           style={styles.TIP}
-          placeholder="Tìm kiếm theo tên, SDT"
-          right={<TextInput.Icon name="microphone" size={24} />}
+          placeholder="Tìm kiếm theo tên, mã hợp đồng"
+          value={searchText}
+          onChangeText={setSearchText}
         />
         <TouchableOpacity style={styles.ButtonSort}>
-          <Icon name='sort-calendar-ascending' size={24} color="#007AFF" />
+          <Icon name="sort-calendar-ascending" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
 
       <FlatList
         style={styles.ListView}
         data={filteredContracts}
-        keyExtractor={(item) => item.retal_id}
-        renderItem={({ item }) => (
-          <View style={styles.View}>
-            <View style={[styles.item, { borderBottomWidth: 0, height: 40 }]}>
-              <Text style={{ fontWeight: 'bold' }}>{item.fullName}</Text>
-              <TouchableOpacity onPress={() => handleRegister(navigation, item)}>
-                <Icon name='arrow-right' size={30} />
-              </TouchableOpacity>
-            </View>
-            <View style={[styles.item, { height: 40 }]}>
-              <Text>Ngày Thuê</Text>
-              <Text>{new Date(item.start_date).toISOString().split('T')[0]}</Text>
-            </View>
-            <View style={styles.item}>
-              <Text>Số tiền</Text>
-              <Text>{formatNumber(item.total_price)}</Text>
-            </View>
-            <View style={styles.item}>
-              <Text>Đã trả</Text>
-              <Text>{item.payment_status}</Text>
-            </View>
-            <View style={styles.item}>
-              <Text>Trạng thái</Text>
-              <TouchableOpacity
-                style={styles.statusButton}
-                onPress={() => toggleStatusDropdown(item.retal_id)}
-              >
-                <Text>{item.status}</Text>
-                <Icon name='chevron-down' size={20} />
-              </TouchableOpacity>
-              {item.isDropdownOpen && (
-                <View style={styles.dropdown}>
-                  {status.slice(1).map((statusItem, index) => ( // Bỏ "Tất cả" khỏi dropdown
-                    <TouchableOpacity
-                      key={index}
-                      style={styles.dropdownItem}
-                      onPress={() => handleStatusSelect(item.retal_id, statusItem)}
-                    >
-                      <Text>{statusItem}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
+        keyExtractor={(item) => item.rental_id.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={() => (
+          <View style={styles.emptyList}>
+            <Text>Không có hợp đồng nào</Text>
           </View>
         )}
       />
-      {/* Add new contract */}
-      <TouchableOpacity style={styles.addButton}>
-        <Icon name='plus' size={24} color="#FFF" />
-      </TouchableOpacity>
-      {/* Footer */}
+
       <View style={styles.footer}>
-        <Text>Tổng tiền: {formatNumber(totalAmount)} đ</Text>
-        <TouchableOpacity>
-          <Text style={{ color: "blue" }}>Chi tiết</Text>
-        </TouchableOpacity>
+        <Text style={styles.footerText}>
+          Tổng tiền: {formatNumber(totalAmount)}đ
+        </Text>
       </View>
+
+      {EditContractModal()}
     </View>
   );
 };
@@ -293,6 +380,80 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  inputContainer: {
+    marginBottom: 15,
+  },
+  picker: {
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    marginTop: 5,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#f44336',
+  },
+  saveButton: {
+    backgroundColor: '#4caf50',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  editButton: {
+    padding: 5,
+    marginRight: 10,
+  },
+  deleteButton: {
+    padding: 5,
+  },
+  emptyList: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  footerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
 });
 
 export default AllContract;

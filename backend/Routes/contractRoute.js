@@ -1,11 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { getAllContracts, getContractById, createContract, updateContract, deleteContract } = require('../controllers/contractController');
+const contractController = require('../controllers/contractController');
+const { authenticateToken } = require('../middleware/authMiddleware');
+const { authorizeRoles } = require('../middleware/roleMiddleware');
 
-router.get('/getAll', getAllContracts);
-router.get('/getById/:id', getContractById);
-router.post('/create', createContract);
-router.put('/update/:id', updateContract);
-router.delete('/delete/:id', deleteContract);
+// Middleware for admin and staff only
+
+
+// Lấy tất cả hợp đồng
+router.get('/', contractController.getAllContracts);
+
+// Lấy chi tiết hợp đồng
+router.get('/:id', contractController.getContractDetails);
+
+// Cập nhật hợp đồng
+router.put('/:id', contractController.updateContract);
+
+// Xóa hợp đồng
+router.delete('/:id', contractController.deleteContract);
 
 module.exports = router;

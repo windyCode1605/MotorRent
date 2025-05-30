@@ -45,7 +45,7 @@ app.use('/payment', authenticateToken, momoRoutes);
 app.use('/' ,vehicleRoutes); 
 
 // CONTRACT ROUTES — Phân quyền rõ ràng
-app.use('/contracts', contractRoute);
+app.use('/contracts',authenticateToken, authorizeRoles('admin') ,contractRoute);
 
 // MAINTENANCE ROUTES — Phân quyền rõ ràng
 app.use('/maintenance', authenticateToken, authorizeRoles('admin', 'staff'), maintenanceRoute);
