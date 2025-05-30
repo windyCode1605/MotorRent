@@ -27,6 +27,7 @@ import { CustomerTabNavigator, AdminTabNavigator } from "./RouterTab";
 import Cofirmed from "../pages/ContractDate/Cofirmed";
 import ListCus from "../pages/Customer/ListCus";
 import AddNewCustomer from "../pages/Customer/AddNewCustomer";
+import EditCustomer from "../pages/Customer/EditCustomer";
 import VerifyBookingScreen from "../pages/Booking/VerifyBookingScreen";
 import VehicleListScreen from "../pages/Lists/VehicleListScreen";
 
@@ -62,6 +63,7 @@ const AppNavigator = () => {
 
       <Stack.Screen name='ListCus' component={ListCus} options={{headerShown: false}}/>
       <Stack.Screen name='AddNewCustomer' component={AddNewCustomer} options={{headerShown: false}}/>
+      <Stack.Screen name='EditCustomer' component={EditCustomer} options={{headerShown: false}}/>
       <Stack.Screen name='AllCT' component={AllContract} options={{headerShown: false}}/>
       <Stack.Screen name='TaskScreen' component={TaskScreen} options={{headerShown: false}}/>
       <Stack.Screen name='WarningScreen' component={WarningScreen} options={{headerShown: false}}/>

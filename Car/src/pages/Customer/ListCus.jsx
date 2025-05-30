@@ -37,8 +37,8 @@ const ListCus = ({navigation}) => {
 
     const handleDeleteCustomer = async (customerId) => {
         Alert.alert(
-            "Xác nhận xóa",
-            "Bạn có chắc chắn muốn xóa khách hàng này không?",
+            "Xác nhận",
+            "Bạn có chắc chắn muốn xóa khách hàng này?",
             [
                 {
                     text: "Hủy",
@@ -46,30 +46,24 @@ const ListCus = ({navigation}) => {
                 },
                 {
                     text: "Xóa",
+                    style: "destructive",
                     onPress: async () => {
-                        setLoading(true);
                         try {
                             const token = await AsyncStorage.getItem('token');
                             await axios.delete(`${BASE_URL}/customers/${customerId}`, {
-                                headers: {
-                                    Authorization: `Bearer ${token}`,
-                                }
+                                headers: { Authorization: `Bearer ${token}` }
                             });
                             
-                            Alert.alert("Thành công", "Đã xóa khách hàng");
+                            Alert.alert("Thành công", "Đã xóa khách hàng!");
                             // Refresh danh sách
                             fetchCustomers();
                         } catch (error) {
-                            console.error('Lỗi xóa khách hàng:', error);
                             Alert.alert(
                                 "Lỗi",
                                 error.response?.data?.message || "Không thể xóa khách hàng"
                             );
-                        } finally {
-                            setLoading(false);
                         }
-                    },
-                    style: "destructive"
+                    }
                 }
             ]
         );
@@ -152,14 +146,54 @@ const ListCus = ({navigation}) => {
 
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 10 },
-    header: { width: '100%', height: 35, marginTop: 25, flexDirection: 'row', justifyContent: 'space-between' },
-    Search: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#ccc', borderRadius: 10, paddingHorizontal: 10, margin: 10 },
-    TIP: { flex: 1, height: 40, fontSize: 16 },
-    icon: { marginLeft: 10 },
-    item: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: 'gray', padding: 20 },
-    TextName: { fontSize: 15, fontWeight: '500', paddingLeft: 30, paddingBottom: 5, paddingTop: 30 },
-    TextItems: { color: '#AAA', fontSize: 15 },    buttons: { 
+    container: { 
+        flex: 1, 
+        padding: 10 
+    },
+    header: { 
+        inlineSize: '100%', 
+        blockSize: 35, 
+        marginBlockStart: 25, 
+        flexDirection: 'row', 
+        justifyContent: 'space-between' 
+    },
+    Search: { 
+        flexDirection: 'row', 
+        alignItems: 'center', 
+        borderInlineSize: 1, 
+        borderColor: '#ccc', 
+        borderRadius: 10, 
+        paddingHorizontal: 10, 
+        margin: 10 
+    },
+    TIP: { 
+        flex: 1, 
+        blockSize: 40, 
+        fontSize: 16 
+    },
+    icon: { 
+        marginInlineStart: 10 
+    },
+    item: { 
+        flexDirection: 'row', 
+        justifyContent: 'space-between', 
+        backgroundColor: '#FFF', 
+        borderBlockEndSize: 1, 
+        borderBlockEndColor: 'gray', 
+        padding: 20 
+    },
+    TextName: { 
+        fontSize: 15, 
+        fontWeight: '500', 
+        paddingInlineStart: 30, 
+        paddingBlockEnd: 5, 
+        paddingBlockStart: 30 
+    },
+    TextItems: { 
+        color: '#AAA', 
+        fontSize: 15 
+    },    
+    buttons: { 
         flexDirection: 'row', 
         justifyContent: 'space-around', 
         alignItems: 'center', 
@@ -168,8 +202,8 @@ const styles = StyleSheet.create({
     },
     button: { 
         flexDirection: 'row', 
-        width: 90, 
-        height: 40, 
+        inlineSize: 90, 
+        blockSize: 40, 
         backgroundColor: '#FF8284', 
         justifyContent: 'center', 
         alignItems: 'center', 
@@ -180,9 +214,21 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 14,
         fontWeight: '600',
-        marginLeft: 4
+        marginInlineStart: 4
     },
-    addButton: { position: 'absolute', bottom: 120, right: 20, backgroundColor: 'blue', width: 50, height: 50, borderRadius: 25, justifyContent: 'center', alignItems: 'center', elevation: 5, zIndex: 1000 },
+    addButton: { 
+        position: 'absolute', 
+        insetBlockEnd: 120, 
+        insetInlineEnd: 20, 
+        backgroundColor: 'blue', 
+        inlineSize: 50, 
+        blockSize: 50, 
+        borderRadius: 25, 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        elevation: 5, 
+        zIndex: 1000 
+    },
 });
 
 export default ListCus;

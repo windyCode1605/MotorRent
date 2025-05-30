@@ -109,7 +109,6 @@ exports.deleteCustomer = async (req, res) => {
             });
         }
         
-        // Delete customer
         const [result] = await promiseDb.execute(
             'DELETE FROM customers WHERE customer_id = ?',
             [customer_id]
