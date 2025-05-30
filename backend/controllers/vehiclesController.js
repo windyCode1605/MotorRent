@@ -2,8 +2,9 @@ const path = require('path');
 const dayjs = require('dayjs');
 const db = require('../config/db');
 const promiseDb = require('../config/promiseDb');
+const fs = require('fs').promises;
 
-// Lấy danh sách xe
+
 exports.getAllVehicles = async (req, res) => {
   try {
     const { search, status, brand, priceMin, priceMax } = req.query;
@@ -11,26 +12,25 @@ exports.getAllVehicles = async (req, res) => {
     let query = 'SELECT * FROM car WHERE 1=1';
     const params = [];
 
-    // Tìm kiếm theo từ khóa
+
     if (search) {
       query += ' AND (brand LIKE ? OR model LIKE ? OR license_plate LIKE ?)';
       const searchPattern = `%${search}%`;
       params.push(searchPattern, searchPattern, searchPattern);
     }
 
-    // Lọc theo trạng thái
+
     if (status) {
       query += ' AND status = ?';
       params.push(status);
     }
 
-    // Lọc theo hãng xe
+
     if (brand) {
       query += ' AND brand = ?';
       params.push(brand);
     }
 
-    // Lọc theo giá
     if (priceMin) {
       query += ' AND daily_rental_price >= ?';
       params.push(parseFloat(priceMin));
@@ -40,7 +40,7 @@ exports.getAllVehicles = async (req, res) => {
       params.push(parseFloat(priceMax));
     }
 
-    // Sắp xếp theo ngày cập nhật mới nhất
+
     query += ' ORDER BY updated_at DESC';
 
     const [rows] = await promiseDb.execute(query, params);
@@ -59,7 +59,7 @@ exports.getAllVehicles = async (req, res) => {
 
 
 
-// Lấy thông tin xe theo ID
+
 exports.getVehicleById = async (req, res) => {
   const { carId } = req.params;
   try {
@@ -80,7 +80,7 @@ exports.getVehicleById = async (req, res) => {
 };
 
 
-// Thêm mới xe
+
 exports.createVehicle = (req, res) => {
   const createdAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
   const updatedAt = createdAt;
@@ -135,6 +135,116 @@ exports.createVehicle = (req, res) => {
       image_url: `${req.protocol}://${req.get('host')}/${IMG_Motor}`
     });
   });
+};
+
+
+exports.updateVehicle = async (req, res) => {
+  const { carId } = req.params;
+  const updatedAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
+
+  const {
+    barcode,
+    parking_spot,
+    license_plate,
+    brand,
+    model,
+    year,
+    color,
+    fuel_type,
+    transmission,
+    mileage,
+    status,
+    daily_rental_price,
+    insurance_status
+  } = req.body;
+
+  try {
+  
+    const [existingCar] = await promiseDb.execute(
+      'SELECT IMG_Motor FROM car WHERE car_id = ?',
+      [carId]
+    );
+
+    if (existingCar.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy xe' });
+    }
+
+    let IMG_Motor = existingCar[0].IMG_Motor;
+ 
+    if (req.file) {
+   
+      if (IMG_Motor) {
+        try {
+          await fs.unlink(IMG_Motor);
+        } catch (err) {
+          console.error('Lỗi khi xóa file ảnh cũ:', err);
+        }
+      }
+      IMG_Motor = req.file.path;
+    }
+
+    const sql = `
+      UPDATE car 
+      SET barcode = ?, parking_spot = ?, license_plate = ?, brand = ?, 
+          model = ?, year = ?, color = ?, fuel_type = ?, transmission = ?,
+          mileage = ?, status = ?, daily_rental_price = ?, insurance_status = ?, 
+          updated_at = ?, IMG_Motor = ?
+      WHERE car_id = ?
+    `;
+
+    const values = [
+      barcode, parking_spot, license_plate, brand, model, year, color,
+      fuel_type, transmission, mileage, status, daily_rental_price,
+      insurance_status, updatedAt, IMG_Motor, carId
+    ];
+
+    await promiseDb.execute(sql, values);
+
+    res.status(200).json({
+      message: 'Cập nhật xe thành công',
+      image_url: IMG_Motor ? `${req.protocol}://${req.get('host')}/${IMG_Motor}` : null
+    });
+
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Mã barcode này đã tồn tại, vui lòng chọn mã khác' });
+    }
+    console.error('Lỗi cập nhật xe:', err);
+    res.status(500).json({ message: 'Lỗi khi cập nhật thông tin xe' });
+  }
+};
+
+// Xóa xe
+exports.deleteVehicle = async (req, res) => {
+  const { carId } = req.params;
+
+  try {
+
+    const [existingCar] = await promiseDb.execute(
+      'SELECT IMG_Motor FROM car WHERE car_id = ?',
+      [carId]
+    );
+
+    if (existingCar.length === 0) {
+      return res.status(404).json({ message: 'Không tìm thấy xe' });
+    }
+
+    if (existingCar[0].IMG_Motor) {
+      try {
+        await fs.unlink(existingCar[0].IMG_Motor);
+      } catch (err) {
+        console.error('Lỗi khi xóa file ảnh:', err);
+      }
+    }
+
+
+    await promiseDb.execute('DELETE FROM car WHERE car_id = ?', [carId]);
+
+    res.status(200).json({ message: 'Xóa xe thành công' });
+  } catch (err) {
+    console.error('Lỗi khi xóa xe:', err);
+    res.status(500).json({ message: 'Lỗi khi xóa xe' });
+  }
 };
 
 

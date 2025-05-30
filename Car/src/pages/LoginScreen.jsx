@@ -62,7 +62,7 @@ const LoginScreen = ({ navigation }) => {
   };
   const handleTogglePassword = () => setShowPassword(!showPassword);
   const handleForgotPassword = () => {
-    navigation.navigate("ForgotPassword");
+    navigation.navigate("ForgotPasswordScreen");
   };
   const handleRegister = () => {
     navigation.navigate("RegisterScreen");

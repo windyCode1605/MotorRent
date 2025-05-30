@@ -10,8 +10,6 @@ const { authorizeRoles } = require('../middleware/roleMiddleware');
 // Lấy tất cả hợp đồng
 router.get('/', contractController.getAllContracts);
 
-// Lấy chi tiết hợp đồng
-router.get('/:id', contractController.getContractDetails);
 
 // Cập nhật hợp đồng
 router.put('/:id', contractController.updateContract);

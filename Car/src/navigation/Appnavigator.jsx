@@ -7,6 +7,7 @@ import RegisterScreen from "../pages/RegisterScreen";
 import TaskScreen from "../pages/TaskScreen";
 import WarningScreen from "../pages/WarningScreen";
 import HoiSo from "../pages/HoiSo";
+import VehicleManagementScreen from "../pages/motor/VehicleManagementScreen";
 
 
 import AllContract from "../pages/ContractDate/AllContract";
@@ -30,7 +31,7 @@ import VerifyBookingScreen from "../pages/Booking/VerifyBookingScreen";
 import VehicleListScreen from "../pages/Lists/VehicleListScreen";
 
 import MaintenanceItem from "../pages/maintenance/maintenance";
-import newMaintenance from "../pages/maintenance/newMaintenance";
+import NewMaintenance from "../pages/maintenance/newMaintenance";
 import serviceForm from "../pages/maintenance/ServiceForm";
 import EditServiceScreen from "../pages/maintenance/EditServiceScreen";
 import NewServiceScreen from "../pages/maintenance/NewServiceScreen";
@@ -39,6 +40,9 @@ import personalScreen from "../pages/acount/ProfileScreen";
 import ChangePasswordScreen from "../pages/acount/ChangePasswordScreen";
 import LoginHistoryScreen from "../pages/acount/LoginHistoryScreen";
 import NotificationSettingsScreen from "../pages/acount/NotificationSettingsScreen";
+import ForgotPasswordScreen from "../pages/acount/ForgotPasswordScreen";
+import ResetPassword from "../pages/acount/ResetPasswordScreen";
+
 
 import ListSelector from "../pages/Lists/ListSelector";
 
@@ -65,7 +69,7 @@ const AppNavigator = () => {
       <Stack.Screen name='VehicleListScreen' component={VehicleListScreen} options={{headerShown: false}}/>
      
       <Stack.Screen name='maintenance' component={MaintenanceItem} options={{headerShown: false}}/>
-      <Stack.Screen name='newMaintenance' component={newMaintenance} options={{headerShown: false}}/>
+      <Stack.Screen name='newMaintenance' component={NewMaintenance} options={{headerShown: false}}/>
       <Stack.Screen name='serviceForm' component={serviceForm} options={{headerShown: false}}/>
       <Stack.Screen name='EditServiceScreen' component={EditServiceScreen} options={{headerShown: false}}/>
       <Stack.Screen name='NewServiceScreen' component={NewServiceScreen} options={{headerShown: false}}/>
@@ -74,6 +78,8 @@ const AppNavigator = () => {
       <Stack.Screen name='ChangePasswordScreen' component={ChangePasswordScreen} options={{headerShown: false}}/>
       <Stack.Screen name='LoginHistory' component={LoginHistoryScreen} options={{headerShown: false}}/>
       <Stack.Screen name='NotificationSettingsScreen' component={NotificationSettingsScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='ForgotPasswordScreen' component={ForgotPasswordScreen} options={{headerShown: false}}/>
+      <Stack.Screen name='ResetPassword' component={ResetPassword} options={{headerShown: false}}/>
       
       <Stack.Screen name='MotorScreen' component={HomeScreenCus} options={{headerShown: false}}/>
       <Stack.Screen name='MotorDetail' component={MotorcycleDetailScreen} options={{headerShown: false}}/>
@@ -90,6 +96,7 @@ const AppNavigator = () => {
       <Stack.Screen name='ListEmployee' component={ListEmployeeScreen} options={{headerShown: false}}/>
       <Stack.Screen name='AddEmployee' component={AddEmployeeScreen} options={{headerShown: false}}/>
       <Stack.Screen name='EditEmployee' component={EditEmployeeScreen} options={{headerShown: false}}/>
+      <Stack.Screen name="VehicleManagement" component={VehicleManagementScreen} options={{headerShown: false}}/>
     </Stack.Navigator>
   );
 }
